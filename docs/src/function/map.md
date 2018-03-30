@@ -1,0 +1,5 @@
+## Kirchhoff map
+  
+```@docs
+KirchMap
+```

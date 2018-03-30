@@ -1,0 +1,40 @@
+site_name:           KirchMig.jl
+repo_url:            https://github.com/cako/KirchMig.jl
+site_description:    Documentation for KirchMig.jl
+site_author:         Carlos Alberto da Costa Filho
+theme:
+  name: material #windmill #readthedocs #cluster #cinder #
+  palette:
+    primary: 'teal'
+    accent: 'pink'
+  logo: 'images/logo.svg'
+
+
+markdown_extensions:
+  - codehilite
+  - extra
+  - tables
+  - fenced_code
+  - mdx_math
+
+extra_css:
+  - assets/Documenter.css
+
+extra_javascript:
+  - https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML
+  - assets/mathjaxhelper.js
+
+docs_dir: 'build'
+
+pages:
+- Home: index.md
+- Examples: examples.md
+
+- Documentation:
+    - Function Index: function/index.md
+    - function/map.md
+    - function/eikonal.md
+    - function/optimization.md
+
+- About:
+  - License: LICENSE.md
