@@ -100,3 +100,49 @@ b = rand(size(Id, 1))
 x, hist_x, hist_r = cg(Id'Id, Id'b, log=true)
 @test 2x ≈ b
 println("done")
+
+# Regularization
+println("2D Laplacian... ")
+Δ = KirchMig.LaplacianMap(nz, nx)
+
+srand(1234)
+u = rand(size(Δ, 2))
+v = rand(size(Δ, 1))
+v_hat = Δ*u;
+u_hat = Δ'v;
+utu =  dot(u_hat, u)
+vtv =  dot(v_hat, v)
+println(@sprintf("  Dot test: ⟨Δ'y, x⟩ = %.5f", utu))
+println(@sprintf("            ⟨Δ x, y⟩ = %.5f", vtv))
+@test (utu - vtv)/((utu+vtv)/2) <= 0*eps()
+println("done")
+
+println("3D Laplacian... ")
+Δ = KirchMig.LaplacianMap(nz, nx, ny)
+
+srand(1234)
+u = rand(size(Δ, 2))
+v = rand(size(Δ, 1))
+v_hat = Δ*u;
+u_hat = Δ'v;
+utu =  dot(u_hat, u)
+vtv =  dot(v_hat, v)
+println(@sprintf("  Dot test: ⟨Δ'y, x⟩ = %.5f", utu))
+println(@sprintf("            ⟨Δ x, y⟩ = %.5f", vtv))
+@test (utu - vtv)/((utu+vtv)/2) <= 0*eps()
+println("done")
+
+println("3D DiffZ... ")
+Δ = KirchMig.DiffZMap(nz, nx, ny)
+
+srand(1234)
+u = rand(size(Δ, 2))
+v = rand(size(Δ, 1))
+v_hat = Δ*u;
+u_hat = Δ'v;
+utu =  dot(u_hat, u)
+vtv =  dot(v_hat, v)
+println(@sprintf("  Dot test: ⟨Δ'y, x⟩ = %.5f", utu))
+println(@sprintf("            ⟨Δ x, y⟩ = %.5f", vtv))
+@test (utu - vtv)/((utu+vtv)/2) <= eps()
+println("done")

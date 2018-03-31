@@ -8,5 +8,6 @@ include("migration.jl")
 include("map.jl")
 include("eikonal.jl")
 include("optimization.jl")
+include("regularization.jl")
 
-end # module
+end
