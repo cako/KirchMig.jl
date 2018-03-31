@@ -17,12 +17,12 @@
         },
         {
             "location": "/examples/",
-            "text": "Layer Cake\n\n\nThis notebook\n is a good starting point. It shows basic functionality of all steps of Kirchhoff inversion: traveltime computations, Kirchhoff mapping and inversion by conjugate gradients.",
+            "text": "Layer Cake\n\n\nThis notebook\n (or its associated \nscript\n) is a good starting point. It shows basic functionality of all steps of Kirchhoff inversion: traveltime computations, Kirchhoff mapping and inversion by conjugate gradients.",
             "title": "Examples"
         },
         {
             "location": "/examples/#layer-cake",
-            "text": "This notebook  is a good starting point. It shows basic functionality of all steps of Kirchhoff inversion: traveltime computations, Kirchhoff mapping and inversion by conjugate gradients.",
+            "text": "This notebook  (or its associated  script ) is a good starting point. It shows basic functionality of all steps of Kirchhoff inversion: traveltime computations, Kirchhoff mapping and inversion by conjugate gradients.",
             "title": "Layer Cake"
         },
         {

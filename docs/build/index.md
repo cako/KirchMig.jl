@@ -29,7 +29,7 @@ Pkg.clone("https://github.com/cako/KirchMig.jl")
 ```
 
 
-A few examples are provided as scripts and Jupyter notebooks [here](https://github.com/cako/KirchMig.jl/notebooks).
+A few examples are provided as scripts and Jupyter notebooks [here](https://github.com/cako/KirchMig.jl/tree/master/notebooks).
 
 
 <!–`@contents--> <!--Pages = [-->     <!--"modules/map.md",-->     <!--"modules/eikonal.md",-->     <!--]--> <!--Depth = 2--> <!--`–>
