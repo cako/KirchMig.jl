@@ -42,7 +42,7 @@ function cg(A, b::AbstractVector, x0::AbstractVector; maxiter::Int=10, tol::Real
         history_r = [rsold]
     end
 
-    for i = 1:minimum([length(b), maxiter])
+    for i = 1:minimum([length(b), maxiter])≈
         Ap = A * p
         alpha = rsold / dot(p, Ap)
         x = x + alpha * p
@@ -53,7 +53,7 @@ function cg(A, b::AbstractVector, x0::AbstractVector; maxiter::Int=10, tol::Real
             push!(history_x, x)
             push!(history_r, rsnew)
         end
-        if sqrt(rsold/rsnew) < tol
+        if sqrt(rsnew/rsold) < tol || p ≈ zero(p)
             break
         end
         rsold = rsnew

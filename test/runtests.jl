@@ -1,6 +1,7 @@
 addprocs(Sys.CPU_CORES)
 using KirchMig
 using Base.Test
+import LinearMaps: LinearMap
 
 # Setup 2D
 nR = nS = 64
@@ -91,3 +92,9 @@ for pts in ["parallel", "threaded", "serial"]
     @test (utu - vtv)/((utu+vtv)/2) <= 100*eps()
     println("")
 end
+
+# cg
+Id = LinearMap(x->2*x, x->2*x, 10, 10)
+b = rand(size(Id, 1))
+x = cg(Id'Id, Id'b)
+@test 2x ≈ b
