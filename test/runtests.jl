@@ -1,5 +1,5 @@
 print("Checking cores... ")
-Sys.CPU_CORES > 1 && addprocs(Sys.CPU_CORES)
+Sys.CPU_CORES > 1 && addprocs(2)
 println("done")
 print("Loading KirchMig... ")
 using KirchMig
