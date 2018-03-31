@@ -4,4 +4,4 @@
 
 ## Layer Cake: Regularization
 
-[This notebook](https://github.com/cako/KirchMig.jl/blob/master/notebooks/LayerCake-Regularized.ipynb) (or its associated [script](https://github.com/cako/KirchMig.jl/blob/master/notebooks/LayerCake-Regularized.jl)) has some more advanced functionality including regularing the inversion.
+[This notebook](https://github.com/cako/KirchMig.jl/blob/master/notebooks/LayerCake-Regularized.ipynb) (or its associated [script](https://github.com/cako/KirchMig.jl/blob/master/notebooks/LayerCake-Regularized.jl)) has some more advanced functionality including regularizing the inversion.

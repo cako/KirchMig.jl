@@ -17,7 +17,7 @@
         },
         {
             "location": "/examples/",
-            "text": "Layer Cake\n\n\nThis notebook\n (or its associated \nscript\n) is a good starting point. It shows basic functionality of all steps of Kirchhoff inversion: traveltime computations, Kirchhoff mapping and inversion by conjugate gradients.\n\n\n\n\nLayer Cake: Regularization\n\n\nThis notebook\n (or its associated \nscript\n) has some more advanced functionality including regularing the inversion.",
+            "text": "Layer Cake\n\n\nThis notebook\n (or its associated \nscript\n) is a good starting point. It shows basic functionality of all steps of Kirchhoff inversion: traveltime computations, Kirchhoff mapping and inversion by conjugate gradients.\n\n\n\n\nLayer Cake: Regularization\n\n\nThis notebook\n (or its associated \nscript\n) has some more advanced functionality including regularizing the inversion.",
             "title": "Examples"
         },
         {
@@ -27,7 +27,7 @@
         },
         {
             "location": "/examples/#layer-cake-regularization",
-            "text": "This notebook  (or its associated  script ) has some more advanced functionality including regularing the inversion.",
+            "text": "This notebook  (or its associated  script ) has some more advanced functionality including regularizing the inversion.",
             "title": "Layer Cake: Regularization"
         },
         {

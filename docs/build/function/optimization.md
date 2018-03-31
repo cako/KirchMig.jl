@@ -37,5 +37,5 @@ Stopping criterion tolerance. Stops if the square root of the ration between the
 If `true`, returns also model and residuals at each iterations.
 
 
-<a target='_blank' href='https://github.com/cako/KirchMig.jl/blob/ae6a7c1026794ad70b33604e269143abe1421e78/src/optimization.jl#L3-L33' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/cako/KirchMig.jl/blob/21fb91d8e9a277c80d03ea5b25cf4dfb691160f0/src/optimization.jl#L3-L33' class='documenter-source'>source</a><br>
 

@@ -57,5 +57,5 @@ $$
 In both computations, the differential elements (which only affect amplitude) are neglected.
 
 
-<a target='_blank' href='https://github.com/cako/KirchMig.jl/blob/ae6a7c1026794ad70b33604e269143abe1421e78/src/map.jl#L28-L76' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/cako/KirchMig.jl/blob/21fb91d8e9a277c80d03ea5b25cf4dfb691160f0/src/map.jl#L28-L76' class='documenter-source'>source</a><br>
 
