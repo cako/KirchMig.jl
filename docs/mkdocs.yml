@@ -35,6 +35,7 @@ pages:
     - function/map.md
     - function/eikonal.md
     - function/optimization.md
+    - function/regularization.md
 
 - About:
   - License: LICENSE.md

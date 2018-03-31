@@ -27,7 +27,7 @@
         },
         {
             "location": "/function/",
-            "text": "KirchMig.KirchMap\n\n\nKirchMig.cg\n\n\nKirchMig.eikonal_const_vel",
+            "text": "KirchMig.KirchMap\n\n\nKirchMig.DiffZMap\n\n\nKirchMig.LaplacianMap\n\n\nKirchMig.cg\n\n\nKirchMig.eikonal_const_vel",
             "title": "Function Index"
         },
         {
@@ -54,6 +54,11 @@
             "location": "/function/optimization/",
             "text": "A \nsimple\n conjugate gradients solver is provided, but using \nIterativeSolvers.jl\n is highly recommended.\n\n\n#\n\n\nKirchMig.cg\n \u2014 \nFunction\n.\n\n\ncg(A, b [, x0];  maxiter=10, tol=1e-3, log=false) -> x [, history_x, history_r]\n\n\nSolve the system \nAx = b\n of a symmetric, positive definite linear map given by \nA\n using the conjugate gradients method.\n\n\nParameters\n\n\n\n\nA\n\n\n\n\nLinear map, which must have two methods defined: multiplication by \nAbstractVector\n and transpose multiplication by \nAbstractVector\n.\n\n\n\n\nb\n : \nAbstractVector\n\n\n\n\nRHS of equation \nAx = b\n.\n\n\n\n\nx0\n : \nAbstractVector\n\n\n\n\nStarting solution.\n\n\n\n\nmaxiter\n : Int, optional\n\n\n\n\nMaximum number of iterations. Defaults to 10.\n\n\n\n\ntol\n : Real, optional\n\n\n\n\nStopping criterion tolerance. Stops if the square root of the ration between the previous and current residuals is smaller than \ntol\n. Defaults to 1e-3.\n\n\n\n\nlog\n : Bool, optional\n\n\n\n\nIf \ntrue\n, returns also model and residuals at each iterations.\n\n\nsource",
             "title": "Optimization"
+        },
+        {
+            "location": "/function/regularization/",
+            "text": "#\n\n\nKirchMig.LaplacianMap\n \u2014 \nFunction\n.\n\n\nLaplacianMap([T,] n...) -> \u0394\n\n\nConstruct a discretized Laplacian operator \u0394 which will act on an \nAbstractVector\n.\n\n\nParameters\n\n\n\n\nT\n : \nType\n, optional\n\n\n\n\nType\n of argument of \n\u0394\n. Defaults to \nFloat64\n.\n\n\n\n\nn...\n\n\n\n\nSequence of spatial dimensions of \n\u0394\n.\n\n\nUsage\n\n\n\n\nForward map and Adjoint maps\n\n\n\n\nThe forward map \n\u0394\n multiplies a model vector of size \nnz \u00d7 nx \u00d7 ny \u00d7 ...\n its second order derivative. It is symmetric.\n\n\nDescription\n\n\nThe forward and adjoint maps computes the following operation\n\n\n\n\n\n\u0394x = \\sum_{i} \u03b4_i x\n\n\n\n\n\nwhere \n\n\n\n\n\n\u03b4_l x_{i,j,k,...} = - x_{...,l+1,...} + 2x_{...,l,...} - x_{...,l-1,...}\n\n\n\n\n\nsource\n\n\n#\n\n\nKirchMig.DiffZMap\n \u2014 \nFunction\n.\n\n\nDiffZMap([T,] n...) -> \u03b4z\n\n\nConstruct a discretized z-derivative operator \u03b4z which will act on an \nAbstractVector\n.\n\n\nParameters\n\n\n\n\nT\n : \nType\n, optional\n\n\n\n\nType\n of argument of \n\u03b4z\n. Defaults to \nFloat64\n.\n\n\n\n\nn...\n\n\n\n\nSequence of spatial dimensions of \n\u03b4z\n.\n\n\nUsage\n\n\n\n\nForward map and Adjoint maps\n\n\n\n\nThe forward map \n\u03b4z\n multiplies a model vector of size \nnz \u00d7 nx \u00d7 ny \u00d7 ...\n its first order z-derivative. The adjoint map is minus the forward map.\n\n\nDescription\n\n\nThe forward map computes the following operation\n\n\n\n\n\n\u03b4z x_{i,j,k,...} = (x_{l+1,...} - x_{l-1,...})/2\n\n\n\n\n\nand the adjoint map computes \n-\u03b4z\n.\n\n\nsource",
+            "title": "Regularization"
         },
         {
             "location": "/LICENSE/",
