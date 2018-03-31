@@ -56,3 +56,6 @@ $$
 
 In both computations, the differential elements (which only affect amplitude) are neglected.
 
+
+<a target='_blank' href='https://github.com/cako/KirchMig.jl/blob/47913d53a5acdfe36b3cc77ba0d8a79d9fcd5d0a/src/map.jl#L28-L76' class='documenter-source'>source</a><br>
+

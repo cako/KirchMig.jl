@@ -23,7 +23,7 @@ Once [Julia 0.6.2](https://julialang.org/downloads/) is installed, open the REPL
 Pkg.clone("https://github.com/cako/KirchMig.jl")
 ```
 
-A few examples are provided as scripts and Jupyter notebooks [here](https://github.com/cako/KirchMig.jl/notebooks).
+A few examples are provided as scripts and Jupyter notebooks [here](https://github.com/cako/KirchMig.jl/tree/master/notebooks).
 
 <!--```@contents-->
 <!--Pages = [-->

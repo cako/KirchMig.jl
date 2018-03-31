@@ -44,3 +44,6 @@ $$
 t(z, x, y, s) = \frac{\sqrt{(z-s_z)^2 + (x-s_x)^2 + (y-s_y)^2}}{v}
 $$
 
+
+<a target='_blank' href='https://github.com/cako/KirchMig.jl/blob/47913d53a5acdfe36b3cc77ba0d8a79d9fcd5d0a/src/eikonal.jl#L3-L41' class='documenter-source'>source</a><br>
+
