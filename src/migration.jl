@@ -1,5 +1,3 @@
-export kirchmod, kirchmod_thread, kirchmod_par, kirchmig, kirchmig_thread, kirchmod_par
-
 ############
 # Utilities 
 ############
