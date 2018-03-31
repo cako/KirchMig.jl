@@ -1,7 +1,11 @@
-Sys.CPU_CORES > 1 ? addprocs(Sys.CPU_CORES) : nothing
+print("Checking cores... ")
+Sys.CPU_CORES > 1 && addprocs(Sys.CPU_CORES)
+println("done")
+print("Loading libraries... ")
 using KirchMig
 using Base.Test
 import LinearMaps: LinearMap
+println("done")
 
 # Setup 2D
 nR = nS = 64
