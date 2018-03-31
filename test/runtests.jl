@@ -1,4 +1,4 @@
-addprocs(Sys.CPU_CORES)
+Sys.CPU_CORES > 1 ? addprocs(Sys.CPU_CORES) : nothing
 using KirchMig
 using Base.Test
 import LinearMaps: LinearMap
@@ -96,5 +96,5 @@ end
 # cg
 Id = LinearMap(x->2*x, x->2*x, 10, 10)
 b = rand(size(Id, 1))
-x = cg(Id'Id, Id'b)
+x, hist_x, hist_r = cg(Id'Id, Id'b, log=true)
 @test 2x ≈ b
