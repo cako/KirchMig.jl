@@ -5,7 +5,7 @@
 
 `KirchMig` is a [Julia](http://julialang.org) package to perform Kirchhoff migration and demigration.
 
-- [Manual]()
+- [Manual](https://cako.github.io/KirchMig.jl/)
 
 ## Installing
 
