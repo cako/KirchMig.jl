@@ -11,7 +11,7 @@ oR = oS = 0
 t = 1e-2:1e-4:1e-1
 
 
-dx = dz = 10
+dx = dz = 100
 x = 0:dx:oR+(nR-1)*dR
 z = 0:dz:400
 nx = length(x)
