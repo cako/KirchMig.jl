@@ -1,6 +1,6 @@
 site_name:           KirchMig.jl
 repo_url:            https://github.com/cako/KirchMig.jl
-site_description:    Documentation for KirchMig.jl
+site_description:    Simple-to-use Kirchhoff migration toolset
 site_author:         Carlos Alberto da Costa Filho
 theme:
   name: material #windmill #readthedocs #cluster #cinder #
