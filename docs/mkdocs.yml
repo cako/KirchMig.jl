@@ -8,7 +8,7 @@ theme:
     primary: 'teal'
     accent: 'pink'
   logo: 'images/logo.svg'
-
+google_analytics: ['UA-107214355-2', 'cako.github.io']
 
 markdown_extensions:
   - codehilite
@@ -39,3 +39,4 @@ pages:
 
 - About:
   - License: LICENSE.md
+

@@ -38,7 +38,7 @@ $$
 $$
 
 
-<a target='_blank' href='https://github.com/cako/KirchMig.jl/blob/60411716685849a4455d7524402422bf3df990aa/src/regularization.jl#L51-L83' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/cako/KirchMig.jl/blob/518db177f2bee8da10d2e16396dc5253398b1069/src/regularization.jl#L66-L98' class='documenter-source'>source</a><br>
 
 <a id='KirchMig.DiffZMap' href='#KirchMig.DiffZMap'>#</a>
 **`KirchMig.DiffZMap`** &mdash; *Function*.
@@ -76,5 +76,5 @@ $$
 and the adjoint map computes `-δz`.
 
 
-<a target='_blank' href='https://github.com/cako/KirchMig.jl/blob/60411716685849a4455d7524402422bf3df990aa/src/regularization.jl#L87-L116' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/cako/KirchMig.jl/blob/518db177f2bee8da10d2e16396dc5253398b1069/src/regularization.jl#L102-L131' class='documenter-source'>source</a><br>
 
