@@ -45,5 +45,5 @@ t(z, x, y, s) = \frac{\sqrt{(z-s_z)^2 + (x-s_x)^2 + (y-s_y)^2}}{v}
 $$
 
 
-<a target='_blank' href='https://github.com/cako/KirchMig.jl/blob/9c3b853d1e3bcb7d2ec7a726627882a7338aa97a/src/eikonal.jl#L3-L41' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/cako/KirchMig.jl/blob/08311247747a97bd83658fd322d92170a9af73de/src/eikonal.jl#L3-L41' class='documenter-source'>source</a><br>
 

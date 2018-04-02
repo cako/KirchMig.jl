@@ -8,7 +8,7 @@ theme:
     primary: 'teal'
     accent: 'pink'
   logo: 'images/logo.svg'
-google_analytics: ['UA-107214355-2', 'cako.github.io']
+google_analytics: ['UA-107214355-3', 'cako.github.io/KirchMig.jl']
 
 markdown_extensions:
   - codehilite
