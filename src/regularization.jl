@@ -1,4 +1,4 @@
-export LaplacianMap, DiffZMap, DiffXMap
+export LaplacianMap, DiffZMap, DiffXMap, GradDivMap
 import LinearMaps: FunctionMap
 
 """
