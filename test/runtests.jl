@@ -49,9 +49,9 @@ for pts in ["parallel", "threaded", "serial"]
     @time u_hat = L'*v;
     utu =  dot(u_hat, u)
     vtv =  dot(v_hat, v)
-    println(@sprintf("    dot test: ⟨L'y, x⟩ = %.2f", utu))
-    println(@sprintf("              ⟨L x, y⟩ = %.2f", vtv))
-    @test (utu - vtv)/((utu+vtv)/2) <= 100*eps()
+    println(@sprintf("    dot test: ⟨L'v, u⟩ = %.2f", utu))
+    println(@sprintf("              ⟨L u, v⟩ = %.2f", vtv))
+    @test abs(utu - vtv)/((utu+vtv)/2) <= 100*eps()
     println("")
 end
 
@@ -71,6 +71,7 @@ src_y = zeros(nR)
 trav = eikonal_const_vel([src_x src_y src_z], x, y, z, vel)
 println("done")
 
+
 # Dot test 3D
 for pts in ["parallel", "threaded", "serial"]
     pts == "parallel" ? println("  Using ", nworkers(), " workers") : nothing
@@ -86,10 +87,10 @@ for pts in ["parallel", "threaded", "serial"]
     @time u_hat = L'*v;
     utu =  dot(u_hat, u)
     vtv =  dot(v_hat, v)
-    println(@sprintf("    dot test: ⟨L'y, x⟩ = %.2f", utu))
-    println(@sprintf("              ⟨L x, y⟩ = %.2f", vtv))
+    println(@sprintf("    dot test: ⟨L'v, u⟩ = %.2f", utu))
+    println(@sprintf("              ⟨L u, v⟩ = %.2f", vtv))
 
-    @test (utu - vtv)/((utu+vtv)/2) <= 100*eps()
+    @test abs(utu - vtv)/((utu+vtv)/2) <= 100*eps()
     println("")
 end
 
@@ -112,9 +113,9 @@ v_hat = Δ*u;
 u_hat = Δ'v;
 utu =  dot(u_hat, u)
 vtv =  dot(v_hat, v)
-println(@sprintf("  Dot test: ⟨Δ'y, x⟩ = %.5f", utu))
-println(@sprintf("            ⟨Δ x, y⟩ = %.5f", vtv))
-@test (utu - vtv)/((utu+vtv)/2) <= 0*eps()
+println(@sprintf("  Dot test: ⟨Δ'v, u⟩ = %.5f", utu))
+println(@sprintf("            ⟨Δ u, v⟩ = %.5f", vtv))
+@test abs(utu - vtv)/((utu+vtv)/2) <= 100eps()
 println("done")
 
 println("3D Laplacian... ")
@@ -127,22 +128,67 @@ v_hat = Δ*u;
 u_hat = Δ'v;
 utu =  dot(u_hat, u)
 vtv =  dot(v_hat, v)
-println(@sprintf("  Dot test: ⟨Δ'y, x⟩ = %.5f", utu))
-println(@sprintf("            ⟨Δ x, y⟩ = %.5f", vtv))
-@test (utu - vtv)/((utu+vtv)/2) <= 0*eps()
+println(@sprintf("  Dot test: ⟨Δ'v, u⟩ = %.5f", utu))
+println(@sprintf("            ⟨Δ u, v⟩ = %.5f", vtv))
+@test abs(utu - vtv)/((utu+vtv)/2) <= 100eps()
 println("done")
 
 println("3D DiffZ... ")
-Δ = KirchMig.DiffZMap(nz, nx, ny)
+δz = KirchMig.DiffZMap(nz, nx, ny)
 
 srand(1234)
-u = rand(size(Δ, 2))
-v = rand(size(Δ, 1))
-v_hat = Δ*u;
-u_hat = Δ'v;
+u = rand(size(δz, 2))
+v = rand(size(δz, 1))
+v_hat = δz*u;
+u_hat = δz'v;
 utu =  dot(u_hat, u)
 vtv =  dot(v_hat, v)
-println(@sprintf("  Dot test: ⟨Δ'y, x⟩ = %.5f", utu))
-println(@sprintf("            ⟨Δ x, y⟩ = %.5f", vtv))
-@test (utu - vtv)/((utu+vtv)/2) <= eps()
+println(@sprintf("  Dot test: ⟨-δz v, u⟩ = %.5f", utu))
+println(@sprintf("            ⟨ δz u, v⟩ = %.5f", vtv))
+@test abs(utu - vtv)/((utu+vtv)/2) <= 100eps()
+println("done")
+
+println("2D DiffX... ")
+δx = KirchMig.DiffXMap(nz, nx)
+
+srand(1234)
+u = rand(size(δx, 2))
+v = rand(size(δx, 1))
+v_hat = δx*u;
+u_hat = δx'v;
+utu =  dot(u_hat, u)
+vtv =  dot(v_hat, v)
+println(@sprintf("  Dot test: ⟨-δx v, u⟩ = %.5f", utu))
+println(@sprintf("            ⟨ δx u, v⟩ = %.5f", vtv))
+@test abs(utu - vtv)/((utu+vtv)/2) <= 100eps()
+println("done")
+
+println("2D GradDiv... ")
+GD = KirchMig.GradDivMap(nz, nx)
+
+srand(1234)
+u = rand(size(GD, 2))
+v = rand(size(GD, 1))
+v_hat = GD*u;
+u_hat = GD'v;
+utu =  dot(u_hat, u)
+vtv =  dot(v_hat, v)
+println(@sprintf("  Dot test: ⟨-div v, u⟩ = %.5f", utu))
+println(@sprintf("            ⟨grad u, v⟩ = %.5f", vtv))
+@test abs(utu - vtv)/((utu+vtv)/2) <= 100eps()
+println("done")
+
+println("3D GradDiv... ")
+GD = KirchMig.GradDivMap(nz, nx, ny)
+
+srand(1234)
+u = rand(size(GD, 2))
+v = rand(size(GD, 1))
+v_hat = GD*u;
+u_hat = GD'v;
+utu =  dot(u_hat, u)
+vtv =  dot(v_hat, v)
+println(@sprintf("  Dot test: ⟨-div v, u⟩ = %.5f", utu))
+println(@sprintf("            ⟨grad u, v⟩ = %.5f", vtv))
+@test abs(utu - vtv)/((utu+vtv)/2) <= 100eps()
 println("done")
