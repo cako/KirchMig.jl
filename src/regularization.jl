@@ -4,7 +4,7 @@ import LinearMaps: FunctionMap
 """
 `LaplacianMap([T,] n...) -> Δ`
 
-Construct a discretized Laplacian operator Δ which will act on an `AbstractVector`.
+Construct a discretized Laplacian operator `Δ` which will act on an `AbstractVector`.
 
 Parameters
 ----------
@@ -27,11 +27,11 @@ Description
 
 The forward and adjoint maps computes the following operation
 ```math
-Δx = \\sum_{i} δ_i x
+Δm = \\sum_{i} δ_i m
 ```
 where 
 ```math
-δ_l x_{i,j,k,...} = - x_{...,l+1,...} + 2x_{...,l,...} - x_{...,l-1,...}
+δ_l m_{i,j,k,...} = - m_{...,l+1,...} + 2m_{...,l,...} - m_{...,l-1,...}
 ```
 """
 LaplacianMap(T::Type, n::Int...) = FunctionMap{T}(x -> laplacian(x, n...)[:], prod(n), issymmetric=true)
@@ -40,7 +40,7 @@ LaplacianMap(n::Int...) = LaplacianMap(Float64, n...)
 """
 `DiffZMap([T,] n...) -> δz`
 
-Construct a discretized z-derivative operator δz which will act on an `AbstractVector`.
+Construct a discretized z-derivative operator `δz` which will act on an `AbstractVector`.
 
 Parameters
 ----------
@@ -63,7 +63,7 @@ Description
 
 The forward map computes the following operation
 ```math
-δz x_{i,j,k,...} = (x_{l+1,...} - x_{l-1,...})/2
+δ_z m_{i,j,k,...} = (m_{l+1,...} - m_{l-1,...})/2
 ```
 and the adjoint map computes `-δz`.
 """
@@ -74,7 +74,7 @@ DiffZMap(n::Int...) = DiffZMap(Float64, n...)
 """
 `DiffXMap([T,] n...) -> δx`
 
-Construct a discretized x-derivative operator δx which will act on an `AbstractVector`.
+Construct a discretized x-derivative operator `δx` which will act on an `AbstractVector`.
 
 Parameters
 ----------
@@ -97,7 +97,7 @@ Description
 
 The forward map computes the following operation
 ```math
-δx x_{i,j,k,...} = (x_{l+1,...} - x_{l-1,...})/2
+δ_x m_{i,j,k,...} = (m_{l+1,...} - m_{l-1,...})/2
 ```
 and the adjoint map computes `-δx`.
 """
@@ -126,14 +126,14 @@ Usage
 
 Calculates the discrete gradient of a `nz × nx × ny × ...` using first order central differences.
 ```math
-∇x_{i,j,k,...} = [δx x_{i,j,k,...},  ..., δz x_{i,j,k,...}]
+∇m_{i,j,k,...} = [δ_x m_{i,j,k,...},  ..., δ_z m_{i,j,k,...}]
 ```
 
 * Adjoint map
 
 Calculates the discrete negative divergence of a `nz × nx × ny × ...` using first order central differences.
 ```math
-∇\\cdot x_{i,j,k,...} = δx x_{i,j,k,...} +  ... + δz x_{i,j,k,...}
+∇\\cdot m_{i,j,k,...} = δ_x m_{i,j,k,...} +  ... + δ_z m_{i,j,k,...}
 ```
 """
 GradDivMap(T::Type, nz, nx) = FunctionMap{T}(x -> gradient(x, nz, nx)[:],
