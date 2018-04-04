@@ -160,7 +160,7 @@ function kirchmod(model::AbstractArray{T, N},
 end
 
 ##############
-# Migration)
+# Migration
 ##############
 
 # Threaded
