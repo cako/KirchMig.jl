@@ -143,7 +143,7 @@ GradDivMap(T::Type, nz, nx, ny) = FunctionMap{T}(x -> gradient(x, nz, nx, ny)[:]
 GradDivMap(n...) = GradDivMap(Float64, n...)
 
 laplacian(x::AbstractArray) = laplacian(x, size(x)...)
-function laplacian(x::AbstractArray, nz, nx) where T
+function laplacian(x::AbstractArray{T}, nz, nx) where T
     x_ = zeros(T, nz+2, nx+2)
     x_[2:nz+1, 2:nx+1] = reshape(x, nz, nx)
 
