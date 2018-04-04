@@ -142,8 +142,9 @@ GradDivMap(T::Type, nz, nx, ny) = FunctionMap{T}(x -> gradient(x, nz, nx, ny)[:]
                                                  x -> -divergence(x, nz, nx, ny)[:], 3nz*nx*ny, nz*nx*ny)
 GradDivMap(n...) = GradDivMap(Float64, n...)
 
-function laplacian(x, nz, nx)
-    x_ = zeros(nz+2, nx+2)
+laplacian(x::AbstractArray) = laplacian(x, size(x)...)
+function laplacian(x::AbstractArray, nz, nx) where T
+    x_ = zeros(T, nz+2, nx+2)
     x_[2:nz+1, 2:nx+1] = reshape(x, nz, nx)
 
     dx = zero(x_)
@@ -157,8 +158,8 @@ function laplacian(x, nz, nx)
     return dx[2:nz+1, 2:nx+1] + dz[2:nz+1, 2:nx+1]
 end
 
-function laplacian(x, nz, nx, ny)
-    x_ = zeros(nz+2, nx+2, ny+2)
+function laplacian(x::AbstractArray{T}, nz, nx, ny) where T
+    x_ = zeros(T, nz+2, nx+2, ny+2)
     x_[2:nz+1, 2:nx+1, 2:ny+1] = reshape(x, nz, nx, ny)
 
     dx = zero(x_)
@@ -176,12 +177,12 @@ function laplacian(x, nz, nx, ny)
     return dx[2:nz+1, 2:nx+1, 2:ny+1] + dy[2:nz+1, 2:nx+1, 2:ny+1] + dz[2:nz+1, 2:nx+1, 2:ny+1]
 end
 
-function deriv_z(x, n...)
-    x_ = zeros(eltype(x), n[1]+2, n[2:end]...)
+deriv_z(x::AbstractArray) = deriv_z(x, size(x)...)
+function deriv_z(x::AbstractArray{T}, n...) where T
+    x_ = zeros(T, n[1]+2, n[2:end]...)
 
     colons = [Colon() for i=2:length(n)]
 
-    x_ = zero(x_)
     x_[2:n[1]+1, colons...] = reshape(x, n[1], n[2:end]...)
 
     dz = zero(x_)
@@ -191,12 +192,12 @@ function deriv_z(x, n...)
     return dz[2:n[1]+1, colons...]
 end
 
-function deriv_x(x, n...)
-    x_ = zeros(eltype(x), n[1], n[2]+2, n[3:end]...)
+deriv_x(x::AbstractArray) = deriv_x(x, size(x)...)
+function deriv_x(x::AbstractArray{T}, n...) where T
+    x_ = zeros(T, n[1], n[2]+2, n[3:end]...)
 
     colons = [Colon() for i=3:length(n)]
 
-    x_ = zero(x_)
     x_[:, 2:n[2]+1, colons...] = reshape(x, n[1], n[2], n[3:end]...)
 
     dx = zero(x_)
@@ -206,12 +207,12 @@ function deriv_x(x, n...)
     return dx[:,2:n[2]+1, colons...]
 end
 
-function deriv_y(x, n...)
-    x_ = zeros(eltype(x), n[1:2]..., n[3]+2, n[4:end]...)
+deriv_y(x::AbstractArray) = deriv_y(x, size(x)...)
+function deriv_y(x::AbstractArray{T}, n...) where T
+    x_ = zeros(T, n[1:2]..., n[3]+2, n[4:end]...)
 
     colons = [Colon() for i=4:length(n)]
 
-    x_ = zero(x_)
     x_[:, :, 2:n[3]+1, colons...] = reshape(x, n[1:2]..., n[3], n[4:end]...)
 
     dy = zero(x_)
@@ -221,14 +222,15 @@ function deriv_y(x, n...)
     return dy[:,:,2:n[3]+1, colons...]
 end
 
-function gradient(x::AbstractVector{T}, nz, nx) where T
+gradient(x::AbstractArray) = gradient(x, size(x)...)
+function gradient(x::AbstractArray{T}, nz, nx) where T
     grad = zeros(T, nz, nx, 2)
     grad[:,:,1] = deriv_x(x, nz, nx)
     grad[:,:,2] = deriv_z(x, nz, nx)
     return grad
 end
 
-function gradient(x::AbstractVector{T}, nz, nx, ny) where T
+function gradient(x::AbstractArray{T}, nz, nx, ny) where T
     grad = zeros(T, nz, nx, ny, 3)
     grad[:,:,:,1] = deriv_x(x, nz, nx, ny)
     grad[:,:,:,2] = deriv_y(x, nz, nx, ny)
@@ -236,12 +238,13 @@ function gradient(x::AbstractVector{T}, nz, nx, ny) where T
     return grad
 end
 
-function divergence(x::AbstractVector, nz, nx)
+divergence(x::AbstractArray) = divergence(x, size(x)...)
+function divergence(x::AbstractArray, nz, nx)
     x_ = reshape(x, nz, nx, 2)
     return deriv_x(x_[:,:,1], nz, nx) + deriv_z(x_[:,:,2], nz, nx)
 end
 
-function divergence(x::AbstractVector, nz, nx, ny)
+function divergence(x::AbstractArray, nz, nx, ny)
     x_ = reshape(x, nz, nx, ny, 3)
     return deriv_x(x_[:,:,:,1], nz, nx, ny) + deriv_y(x_[:,:,:,2], nz, nx, ny) + deriv_z(x_[:,:,:,3], nz, nx, ny)
 end
