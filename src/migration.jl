@@ -21,7 +21,7 @@ end
 kirchmod_thread(model::AbstractArray, t::AbstractVector,
          trav_r::AbstractArray) = kirchmod_thread(model, t, trav_r, trav_r)
 
-function kirchmod_thread(model::AbstractArray{T, N},
+function kirchmod_get_axes(model::AbstractArray{T, N},
                   t::AbstractVector,
                   trav_r::AbstractArray{<:Real, M},
                   trav_s::AbstractArray{<:Real, M}) where {T,N,M}
@@ -41,6 +41,18 @@ function kirchmod_thread(model::AbstractArray{T, N},
     if nzxy != NZXY
         throw(DimensionMismatch("1st $(M-1) dimensions of trav_r and trav_s must be the same"))
     end
+    return ot, dt, nt, nr, ns, nzxy
+end
+
+# Threaded
+kirchmod_thread(model::AbstractArray, t::AbstractVector,
+         trav_r::AbstractArray) = kirchmod_thread(model, t, trav_r, trav_r)
+
+function kirchmod_thread(model::AbstractArray{T, N},
+                  t::AbstractVector,
+                  trav_r::AbstractArray{<:Real, M},
+                  trav_s::AbstractArray{<:Real, M}) where {T,N,M}
+    ot, dt, nt, nr, ns, nzxy = kirchmod_get_axes(model, t, trav_r, trav_s)
 
     colons = [Colon() for i=1:M-1]
 
@@ -85,22 +97,7 @@ function kirchmod_par(model::AbstractArray{T, N},
                   t::AbstractVector,
                   trav_r::AbstractArray{<:Real, M},
                   trav_s::AbstractArray{<:Real, M}) where {T,N,M}
-
-    Nzxy = size(model)
-
-    nr = size(trav_r)[end]
-    ns = size(trav_s)[end]
-    nzxy = size(trav_r)[1:M-1]
-    NZXY = size(trav_s)[1:M-1]
-
-    ot, dt, nt = t[1], t[2]-t[1], length(t)
-
-    if nzxy != Nzxy
-        throw(DimensionMismatch("1st $(M-1) dimensions of trav_r must be the same as that of model"))
-    end
-    if nzxy != NZXY
-        throw(DimensionMismatch("1st $(M-1) dimensions of trav_r and trav_s must be the same"))
-    end
+    ot, dt, nt, nr, ns, nzxy = kirchmod_get_axes(model, t, trav_r, trav_s)
 
     colons = [Colon() for i=1:M-1]
     data = @parallel vcat for ir=1:nr
@@ -126,22 +123,7 @@ function kirchmod(model::AbstractArray{T, N},
                   t::AbstractVector,
                   trav_r::AbstractArray{<:Real, M},
                   trav_s::AbstractArray{<:Real, M}) where {T,N,M}
-
-    Nzxy = size(model)
-
-    nr = size(trav_r)[end]
-    ns = size(trav_s)[end]
-    nzxy = size(trav_r)[1:M-1]
-    NZXY = size(trav_s)[1:M-1]
-
-    ot, dt, nt = t[1], t[2]-t[1], length(t)
-
-    if nzxy != Nzxy
-        throw(DimensionMismatch("1st $(M-1) dimensions of trav_r must be the same as that of model"))
-    end
-    if nzxy != NZXY
-        throw(DimensionMismatch("1st $(M-1) dimensions of trav_r and trav_s must be the same"))
-    end
+    ot, dt, nt, nr, ns, nzxy = kirchmod_get_axes(model, t, trav_r, trav_s)
 
     colons = [Colon() for i=1:M-1]
     data = zeros(T, nr, ns, nt+1)
@@ -163,15 +145,11 @@ end
 # Migration
 ##############
 
-# Threaded
-kirchmig_thread(model::AbstractArray, t::AbstractVector,
-         trav_r::AbstractArray) = kirchmig_thread(model, t, trav_r, trav_r)
 
-function kirchmig_thread(data::AbstractArray{T, 3},
+function kirchmig_get_axes(data::AbstractArray{T, 3},
                   t::AbstractVector,
                   trav_r::AbstractArray{<:Real, M},
                   trav_s::AbstractArray{<:Real, M}) where {T,M}
-
     nR = size(trav_r)[end]
     nS = size(trav_s)[end]
     nzxy = size(trav_r)[1:M-1]
@@ -217,31 +195,14 @@ function kirchmig_thread(data::AbstractArray{T, 3},
 end
 
 # Parallel
-kirchmig_par(model::AbstractArray, t::AbstractVector,
-         trav_r::AbstractArray) = kirchmig_par(model, t, trav_r, trav_r)
+kirchmig_par(data::AbstractArray, t::AbstractVector,
+         trav_r::AbstractArray) = kirchmig_par(data, t, trav_r, trav_r)
 
 function kirchmig_par(data::AbstractArray{T, 3},
                   t::AbstractVector,
                   trav_r::AbstractArray{<:Real, M},
                   trav_s::AbstractArray{<:Real, M}) where {T,M}
-
-    nR = size(trav_r)[end]
-    nS = size(trav_s)[end]
-    nzxy = size(trav_r)[1:M-1]
-    NZXY = size(trav_s)[1:M-1]
-
-    nr, ns, nt = size(data)
-    ot, dt, nT = t[1], t[2]-t[1], length(t)
-
-    if nr != nR 
-        throw(DimensionMismatch("1st dimension of data (receivers) must be the same as last dimension of trav_r"))
-    end
-    if ns != nS
-        throw(DimensionMismatch("2nd dimension of data (sources) must be the same as last dimension of trav_s"))
-    end
-    if nzxy != NZXY
-        throw(DimensionMismatch("1st $(M-1) dimensions of trav_r and trav_s must be the same"))
-    end
+    ot, dt, nt, nr, ns, nzxy = kirchmig_get_axes(data, t, trav_r, trav_s)
 
     data_ = zeros(T, nr, ns, nt+1)
     data_[:,:,1:nt] = data
@@ -267,24 +228,7 @@ function kirchmig(data::AbstractArray{T, 3},
                   t::AbstractVector,
                   trav_r::AbstractArray{<:Real, M},
                   trav_s::AbstractArray{<:Real, M}) where {T,M}
-
-    nR = size(trav_r)[end]
-    nS = size(trav_s)[end]
-    nzxy = size(trav_r)[1:M-1]
-    NZXY = size(trav_s)[1:M-1]
-
-    nr, ns, nt = size(data)
-    ot, dt, nT = t[1], t[2]-t[1], length(t)
-
-    if nr != nR 
-        throw(DimensionMismatch("1st dimension of data (receivers) must be the same as last dimension of trav_r"))
-    end
-    if ns != nS
-        throw(DimensionMismatch("2nd dimension of data (sources) must be the same as last dimension of trav_s"))
-    end
-    if nzxy != NZXY
-        throw(DimensionMismatch("1st $(M-1) dimensions of trav_r and trav_s must be the same"))
-    end
+    ot, dt, nt, nr, ns, nzxy = kirchmig_get_axes(data, t, trav_r, trav_s)
 
     data_ = zeros(T, nr, ns, nt+1)
     data_[:,:,1:nt] = data
