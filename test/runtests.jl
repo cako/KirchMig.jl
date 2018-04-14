@@ -59,7 +59,6 @@ end
 println("")
 # Setup 3D
 print("3D setup... ")
-t = convert(Vector{Float32}, t)
 
 dy = 10
 ny = 3
