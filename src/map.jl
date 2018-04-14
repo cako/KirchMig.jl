@@ -91,19 +91,19 @@ function KirchMap(t::AbstractVector{T},
 
     if parallel_threaded_serial == "parallel"
         nworkers() == 1 ? warn("Using only one worker") : nothing
-        return KirchMap{T}(x -> kirchmod_par(reshape(x, nzxy...), t, trav_r, trav_s)[:],
-                           x -> kirchmig_par(reshape(x, nr, ns, nt), t, trav_r, trav_s)[:],
+        return KirchMap{T}(x -> view(kirchmod_par(reshape(x, nzxy...), t, trav_r, trav_s), :),
+                           x -> view(kirchmig_par(reshape(x, nr, ns, nt), t, trav_r, trav_s), :),
                            nr*ns*nt,
                            prod(nzxy))
     elseif parallel_threaded_serial == "threaded"
         Threads.nthreads() == 1 ? warn("Using only one thread") : nothing
-        return KirchMap{T}(x -> kirchmod_thread(reshape(x, nzxy...), t, trav_r, trav_s)[:],
-                           x -> kirchmig_thread(reshape(x, nr, ns, nt), t, trav_r, trav_s)[:],
+        return KirchMap{T}(x -> view(kirchmod_thread(reshape(x, nzxy...), t, trav_r, trav_s), :),
+                           x -> view(kirchmig_thread(reshape(x, nr, ns, nt), t, trav_r, trav_s), :),
                            nr*ns*nt,
                            prod(nzxy))
     else
-        return KirchMap{T}(x -> kirchmod(reshape(x, nzxy...), t, trav_r, trav_s)[:],
-                           x -> kirchmig(reshape(x, nr, ns, nt), t, trav_r, trav_s)[:],
+        return KirchMap{T}(x -> view(kirchmod(reshape(x, nzxy...), t, trav_r, trav_s), :),
+                           x -> view(kirchmig(reshape(x, nr, ns, nt), t, trav_r, trav_s), :),
                            nr*ns*nt,
                            prod(nzxy))
     end
