@@ -17,15 +17,19 @@ end
 # Modeling (demigration)
 #########################
 
-# Threaded
-kirchmod_thread(model::AbstractArray, t::AbstractVector,
-         trav_r::AbstractArray) = kirchmod_thread(model, t, trav_r, trav_r)
+# Auxiliary functions
+function kirchmod_kernel!(data, model, tt, ot, dt, nt)
+    its = round.(Int, (tt-ot)/dt)
+    its = min.(max.(its, 0), nt)+1
+    for ixyz = 1:length(its)
+        data[its[ixyz]] .+= model[ixyz]
+    end
+end
 
 function kirchmod_get_axes(model::AbstractArray{T, N},
                   t::AbstractVector,
                   trav_r::AbstractArray{<:Real, M},
                   trav_s::AbstractArray{<:Real, M}) where {T,N,M}
-
     Nzxy = size(model)
 
     nr = size(trav_r)[end]
@@ -69,13 +73,9 @@ function kirchmod_thread(model::AbstractArray{T, N},
         @fastmath @inbounds @simd for ir in range
             rec = zeros(T, ns, nt+1)
             for is=1:ns
-                tt = trav_r[colons...,ir] + trav_s[colons...,is]
-                its = round.(Int, (tt-ot)/dt)
-                its = min.(max.(its, 0), nt)+1
-                # Do not remove this loop!
-                for ixyz = 1:length(its)
-                    rec[is,its[ixyz]] += model[ixyz]
-                end
+                kirchmod_kernel!(view(rec, is, :), model,
+                                 trav_r[colons...,ir] + trav_s[colons...,is],
+                                 ot, dt, nt)
             end
             push!(v[P], rec[:,1:nt])
             push!(ind[P],ir)
@@ -103,13 +103,9 @@ function kirchmod_par(model::AbstractArray{T, N},
     data = @parallel vcat for ir=1:nr
         rec = zeros(T, ns, nt+1)
         @fastmath @inbounds @simd for is=1:ns
-            tt = trav_r[colons...,ir] + trav_s[colons...,is]
-            its = round.(Int, (tt-ot)/dt)
-            its = min.(max.(its, 0), nt)+1
-            # Do not remove this loop!
-            for ixyz = 1:length(its)
-                rec[is,its[ixyz]] += model[ixyz]
-            end
+            kirchmod_kernel!(view(rec, is, :), model,
+                             trav_r[colons...,ir] + trav_s[colons...,is],
+                             ot, dt, nt)
         end
         rec
     end
@@ -129,13 +125,9 @@ function kirchmod(model::AbstractArray{T, N},
     data = zeros(T, nr, ns, nt+1)
     @fastmath @inbounds for ir=1:nr
         @simd for is=1:ns
-            tt = trav_r[colons...,ir] + trav_s[colons...,is]
-            its = round.(Int, (tt-ot)/dt)
-            its = min.(max.(its, 0), nt)+1
-            # Do not remove this loop!
-            for ixyz = 1:length(its)
-                data[ir,is,its[ixyz]] += model[ixyz]
-            end
+            kirchmod_kernel!(view(data, ir, is, :), model,
+                             trav_r[colons...,ir] + trav_s[colons...,is],
+                             ot, dt, nt)
         end
     end
     return data[:,:,1:nt]
@@ -145,6 +137,12 @@ end
 # Migration
 ##############
 
+# Auxiliary functions
+function kirchmig_kernel!(model, data, tt, ot, dt, nt)
+    its = round.(Int, (tt-ot)/dt)
+    its = min.(max.(its, 0), nt)+1
+    model .+= data[its[:]]
+end
 
 function kirchmig_get_axes(data::AbstractArray{T, 3},
                   t::AbstractVector,
@@ -168,6 +166,20 @@ function kirchmig_get_axes(data::AbstractArray{T, 3},
         throw(DimensionMismatch("1st $(M-1) dimensions of trav_r and trav_s must be the same"))
     end
 
+    return ot, dt, nt, nr, ns, nzxy
+end
+
+# Threaded
+kirchmig_thread(model::AbstractArray, t::AbstractVector,
+         trav_r::AbstractArray) = kirchmig_thread(model, t, trav_r, trav_r)
+
+function kirchmig_thread(data::AbstractArray{T, 3},
+                  t::AbstractVector,
+                  trav_r::AbstractArray{<:Real, M},
+                  trav_s::AbstractArray{<:Real, M}) where {T,M}
+
+    ot, dt, nt, nr, ns, nzxy = kirchmig_get_axes(data, t, trav_r, trav_s)
+
     data_ = zeros(T, nr, ns, nt+1)
     data_[:,:,1:nt] = data
     colons = [Colon() for i=1:M-1]
@@ -183,10 +195,9 @@ function kirchmig_get_axes(data::AbstractArray{T, 3},
         range = split(nr, nthreads, P)
         @fastmath @inbounds @simd for ir in range
             for is=1:ns
-                tt = trav_r[colons..., ir] + trav_s[colons..., is]
-                its = round.(Int, (tt-ot)/dt)
-                its = min.(max.(its, 0), nt)+1
-                mod += data_[ir, is, its[:]]
+                kirchmig_kernel!(mod, data_[ir, is, :],
+                                 trav_r[colons..., ir] + trav_s[colons..., is],
+                                 ot, dt, nt)
             end
         end
         push!(v[P], mod)
@@ -210,10 +221,9 @@ function kirchmig_par(data::AbstractArray{T, 3},
     model = @parallel (+) for ir=1:nr
         mod = zeros(T, prod(nzxy))
         @fastmath @inbounds @simd for is=1:ns
-            tt = trav_r[colons..., ir] + trav_s[colons..., is]
-            its = round.(Int, (tt-ot)/dt)
-            its = min.(max.(its, 0), nt)+1
-            mod += data_[ir, is, its[:]]
+            kirchmig_kernel!(mod, data_[ir, is, :],
+                             trav_r[colons..., ir] + trav_s[colons..., is],
+                             ot, dt, nt)
         end
         mod
     end
@@ -236,10 +246,9 @@ function kirchmig(data::AbstractArray{T, 3},
     model = zeros(T, prod(nzxy))
     @fastmath @inbounds for ir=1:nr
         @simd for is=1:ns
-            tt = trav_r[colons..., ir] + trav_s[colons..., is]
-            its = round.(Int, (tt-ot)/dt)
-            its = min.(max.(its, 0), nt)+1
-            model += data_[ir, is, its[:]]
+            kirchmig_kernel!(model, data_[ir, is, :],
+                             trav_r[colons..., ir] + trav_s[colons..., is],
+                             ot, dt, nt)
         end
     end
     return reshape(model, nzxy...)
