@@ -66,8 +66,8 @@ src_x = 0:20:(ns-1)*20
 trav = km.eikonal_const_vel([src_z src_x], z, x, vel[1]);
 
 fig, ax = plt.subplots(figsize=(5,3))
-cax = ax[:imshow](trav[:,:,div(ns,3)], extent=[x[1], x[end], z[end], z[1]], vmin=0, vmax=maximum(trav),
-    aspect="equal", cmap="Blues")
+cax = ax[:imshow](trav[:,:,div(ns,3)], extent=[x[1], x[end], z[end], z[1]], aspect="equal", cmap="Paired",
+    vmin=0, vmax=maximum(trav[:,:,div(ns,3)]))
 ax[:set](xlabel="Position [m]", ylabel="Depth [m]")
 cbar = fig[:colorbar](cax, ax=ax)
 ax[:scatter](src_x[1:3:end], src_z[1:3:end], color="#1f77b4", marker="v", s=100, clip_on=false, zorder=100)
@@ -79,7 +79,7 @@ ax[:set](ylabel="Traveltime [s]", xlim=(x[1], x[end]), ylim=(z[end], z[1]));
 t = 0:0.008:1; nt = length(t)
 L = km.KirchMap(t, trav)
 
-@time d = L*mod_bl[:];
+@time d = L*view(mod_bl, :); # mod_bl is 67x67 array, L takes 4489 vector
 
 data = reshape(d, ns, ns, nt)
 
