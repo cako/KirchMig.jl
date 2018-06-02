@@ -16,12 +16,12 @@ struct KirchMap{T, F1, F2} <: LinearMap{T}
 end
 
 # Constructors
-function (::Type{KirchMap{T}})(f::F1, fc::F2, M::Int, N::Int;
-                               ismutating::Bool = false,
-                               issymmetric::Bool = false,
-                               ishermitian::Bool=(T<:Real && issymmetric),
-                               isposdef::Bool = false,
-                               parallel_threaded_serial::String = "parallel") where {T,F1,F2}
+function KirchMap{T}(f::F1, fc::F2, M::Int, N::Int;
+                     ismutating::Bool = false,
+                     issymmetric::Bool = false,
+                     ishermitian::Bool=(T<:Real && issymmetric),
+                     isposdef::Bool = false,
+                     parallel_threaded_serial::String = "parallel") where {T,F1,F2}
     KirchMap{T,F1,F2}(f, fc, M, N, ismutating, issymmetric, ishermitian, isposdef, parallel_threaded_serial)
 end
 
