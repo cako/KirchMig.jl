@@ -35,9 +35,11 @@ trav = eikonal_const_vel([src_z src_x], z, x, vel)
 println("done")
 
 # Dot test 2D
+println("2D Kirchhoff...")
 for pts in ["parallel", "threaded", "serial"]
     pts == "parallel" ? println("  Using ", nworkers(), " workers") : nothing
-    pts == "threaded" ? println("  Using ", Threads.nthreads(), " threads") : nothing
+    pts == "threaded" ? println("  Using ", Threads.nthreads(),
+                                " thread" * (Threads.nthreads() > 1 ? "s" : "") ) : nothing
     pts == "serial" ? println("  Using serial version") : nothing
     L = KirchMap(t, trav; parallel_threaded_serial=pts)
     srand(1234)
@@ -55,8 +57,6 @@ for pts in ["parallel", "threaded", "serial"]
     println("")
 end
 
-
-println("")
 # Setup 3D
 print("3D setup... ")
 
@@ -72,6 +72,7 @@ println("done")
 
 
 # Dot test 3D
+println("3D Kirchhoff...")
 for pts in ["parallel", "threaded", "serial"]
     pts == "parallel" ? println("  Using ", nworkers(), " workers") : nothing
     pts == "threaded" ? println("  Using ", Threads.nthreads(), " threads") : nothing
@@ -115,7 +116,7 @@ vtv =  dot(v_hat, v)
 println(@sprintf("  Dot test: ⟨Δ'v, u⟩ = %.5f", utu))
 println(@sprintf("            ⟨Δ u, v⟩ = %.5f", vtv))
 @test abs(utu - vtv)/((utu+vtv)/2) <= 100eps()
-println("done")
+println("")
 
 println("3D Laplacian... ")
 Δ = KirchMig.LaplacianMap(nz, nx, ny)
@@ -130,7 +131,7 @@ vtv =  dot(v_hat, v)
 println(@sprintf("  Dot test: ⟨Δ'v, u⟩ = %.5f", utu))
 println(@sprintf("            ⟨Δ u, v⟩ = %.5f", vtv))
 @test abs(utu - vtv)/((utu+vtv)/2) <= 100eps()
-println("done")
+println("")
 
 println("3D DiffZ... ")
 δz = KirchMig.DiffZMap(nz, nx, ny)
@@ -145,7 +146,7 @@ vtv =  dot(v_hat, v)
 println(@sprintf("  Dot test: ⟨-δz v, u⟩ = %.5f", utu))
 println(@sprintf("            ⟨ δz u, v⟩ = %.5f", vtv))
 @test abs(utu - vtv)/((utu+vtv)/2) <= 100eps()
-println("done")
+println("")
 
 println("2D DiffX... ")
 δx = KirchMig.DiffXMap(nz, nx)
@@ -160,7 +161,7 @@ vtv =  dot(v_hat, v)
 println(@sprintf("  Dot test: ⟨-δx v, u⟩ = %.5f", utu))
 println(@sprintf("            ⟨ δx u, v⟩ = %.5f", vtv))
 @test abs(utu - vtv)/((utu+vtv)/2) <= 100eps()
-println("done")
+println("")
 
 println("2D GradDiv... ")
 GD = KirchMig.GradDivMap(nz, nx)
@@ -175,7 +176,7 @@ vtv =  dot(v_hat, v)
 println(@sprintf("  Dot test: ⟨-div v, u⟩ = %.5f", utu))
 println(@sprintf("            ⟨grad u, v⟩ = %.5f", vtv))
 @test abs(utu - vtv)/((utu+vtv)/2) <= 100eps()
-println("done")
+println("")
 
 println("3D GradDiv... ")
 GD = KirchMig.GradDivMap(nz, nx, ny)
@@ -190,4 +191,4 @@ vtv =  dot(v_hat, v)
 println(@sprintf("  Dot test: ⟨-div v, u⟩ = %.5f", utu))
 println(@sprintf("            ⟨grad u, v⟩ = %.5f", vtv))
 @test abs(utu - vtv)/((utu+vtv)/2) <= 100eps()
-println("done")
+println("")
