@@ -54,6 +54,33 @@ for pts in ["parallel", "threaded", "serial"]
     println(@sprintf("    dot test: ⟨L'v, u⟩ = %.2f", utu))
     println(@sprintf("              ⟨L u, v⟩ = %.2f", vtv))
     @test abs(utu - vtv)/((utu+vtv)/2) <= 100*eps()
+
+    print("    Testing convenience functions... ")
+    inv = L\v
+    linv = 0.*similar(v)
+    A_mul_B!(linv, L, inv)
+    linv[1] ≈ 0.46369805743633524
+    linv[2] ≈ 0.46369805743633524
+    linv[3:52] ≈ zeros(50)
+
+    ltlinv = 0.*similar(u)
+    At_mul_B!(ltlinv, L, linv)
+    ltlinv[1] ≈ 109.6292557816823
+    ltlinv[3] ≈ 0.
+
+    ltlinv = At_mul_B(L, linv)
+    ltlinv[1] ≈ 109.6292557816823
+    ltlinv[3] ≈ 0.
+
+    ltlinv = 0.*similar(u)
+    Ac_mul_B!(ltlinv, L, linv)
+    ltlinv[1] ≈ 109.6292557816823
+    ltlinv[3] ≈ 0.
+
+    issymmetric(L) == false
+    isposdef(L) == false
+    KirchMig._ismutating(L.f)
+    println("done")
     println("")
 end
 
