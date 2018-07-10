@@ -17,8 +17,10 @@ nR = nS = 64
 dR = dS = 14
 oR = oS = 0
 
-t = 1e-2:1e-4:1e-1
-
+ot = 1e-2
+dt = 1e-4
+nt = 901
+t = ot:dt:ot+dt*(nt-1)
 
 dx = dz = 100
 x = 0:dx:oR+(nR-1)*dR
@@ -130,6 +132,42 @@ x, hist_x, hist_r = cg(Id'Id, Id'b, log=true)
 println("done")
 
 # Regularization
+println("2D ConvMap... ")
+ricker(t0, f) = (1 - 2pi^2 * f^2 * t0.^2) .* exp.(-pi^2 * f^2 * t0.^2)
+rick_dt = ricker(t-t[div(nt,3)], 15);
+rick_dt[2:end-1] = (rick_dt[1:end-2] - rick_dt[3:end])/2(t[2] - t[1])
+
+W = ConvMap(rick_dt, nS, nt);
+srand(1234)
+u = rand(size(W, 2))
+v = rand(size(W, 1))
+v_hat = W*u;
+u_hat = W'v;
+utu =  dot(u_hat, u)
+vtv =  dot(v_hat, v)
+println(@sprintf("  Dot test: ⟨corr v, u⟩ = %.5f", utu))
+println(@sprintf("            ⟨conv u, v⟩ = %.5f", vtv))
+println(abs(utu - vtv)/((utu+vtv)/2) <= 100eps())
+println("")
+
+println("3D ConvMap... ")
+ricker(t0, f) = (1 - 2pi^2 * f^2 * t0.^2) .* exp.(-pi^2 * f^2 * t0.^2)
+rick_dt = ricker(t-t[div(nt,3)], 15)
+rick_dt[2:end-1] = (rick_dt[1:end-2] - rick_dt[3:end])/2(t[2] - t[1])
+
+W = ConvMap(rick_dt, nR, nS, nt);
+srand(1234)
+u = rand(size(W, 2))
+v = rand(size(W, 1))
+v_hat = W*u;
+u_hat = W'v;
+utu =  dot(u_hat, u)
+vtv =  dot(v_hat, v)
+println(@sprintf("  Dot test: ⟨corr v, u⟩ = %.5f", utu))
+println(@sprintf("            ⟨conv u, v⟩ = %.5f", vtv))
+println(abs(utu - vtv)/((utu+vtv)/2) <= 100eps())
+println("")
+
 println("2D Laplacian... ")
 Δ = KirchMig.LaplacianMap(nz, nx)
 

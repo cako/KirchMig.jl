@@ -1,5 +1,37 @@
-export LaplacianMap, DiffZMap, DiffXMap, GradDivMap
-import LinearMaps: FunctionMap
+export ConvMap, LaplacianMap, DiffZMap, DiffXMap, GradDivMap
+import DSP: hilbert
+import LinearMaps: LinearMap
+
+"""
+`ConvMap([T,] wavelet, n...) -> W`
+
+Construct a convolution/correlation operator `W` which will act on an `AbstractVector`.
+
+Parameters
+----------
+* `T` : `Type`, optional
+
+`Type` of argument of `W`. Defaults to `Float64`.
+
+* `wavelet`
+
+One-dimensional wavelet.
+
+* `n...`
+
+Sequence of dimensions of the data.
+
+Usage
+-----
+* Forward map and Adjoint maps
+
+The forward map `W` convolves the last dimension of the input with `wavelet`.
+The adjoint map `W` correlates the last dimension of the input with `wavelet`.
+
+"""
+ConvMap(T::Type, wav, n...) = LinearMap{T}(x -> wav_conv(x, wav, n...)[:],
+                                           x -> wav_corr(x, wav, n...)[:], prod(n), prod(n))
+ConvMap(wav, n...) = ConvMap(Float64, wav, n...)
 
 """
 `LaplacianMap([T,] n...) -> Δ`
@@ -141,6 +173,31 @@ GradDivMap(T::Type, nz, nx) = FunctionMap{T}(x -> gradient(x, nz, nx)[:],
 GradDivMap(T::Type, nz, nx, ny) = FunctionMap{T}(x -> gradient(x, nz, nx, ny)[:],
                                                  x -> -divergence(x, nz, nx, ny)[:], 3nz*nx*ny, nz*nx*ny)
 GradDivMap(n...) = GradDivMap(Float64, n...)
+
+# Auxiliary functions
+function wav_conv(data::AbstractArray, wavelet::AbstractVector, nr, nt)
+    kt = indmax(abs.(hilbert(wavelet)))
+    return mapslices(x->conv(x, wavelet)[kt:kt+nt-1],
+                     reshape(copy(data), nr, nt), [2])
+end
+
+function wav_corr(data::AbstractArray, wavelet::AbstractVector, nr, nt)
+    kt = indmax(abs.(hilbert(wavelet)))
+    return mapslices(x->conv(x, wavelet[end:-1:1])[nt-kt+1:2nt-kt],
+                     reshape(copy(data), nr, nt), [2]);
+end
+
+function wav_conv(data::AbstractArray, wavelet::AbstractVector, nr, ns, nt)
+    kt = indmax(abs.(hilbert(wavelet)))
+    return mapslices(x->conv(x, wavelet)[kt:kt+nt-1],
+                     reshape(copy(data), nr, ns, nt), [3])
+end
+
+function wav_corr(data::AbstractArray, wavelet::AbstractVector, nr, ns, nt)
+    kt = indmax(abs.(hilbert(wavelet)))
+    return mapslices(x->conv(x, wavelet[end:-1:1])[nt-kt+1:2nt-kt],
+                     reshape(copy(data), nr, ns, nt), [3]);
+end
 
 laplacian(x::AbstractArray) = laplacian(x, size(x)...)
 function laplacian(x::AbstractArray{T}, nz, nx) where T
