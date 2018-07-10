@@ -66,7 +66,7 @@ where
 δ_l m_{i,j,k,...} = - m_{...,l+1,...} + 2m_{...,l,...} - m_{...,l-1,...}
 ```
 """
-LaplacianMap(T::Type, n::Int...) = FunctionMap{T}(x -> laplacian(x, n...)[:], prod(n), issymmetric=true)
+LaplacianMap(T::Type, n::Int...) = LinearMap{T}(x -> laplacian(x, n...)[:], prod(n), issymmetric=true)
 LaplacianMap(n::Int...) = LaplacianMap(Float64, n...)
 
 """
@@ -99,8 +99,8 @@ The forward map computes the following operation
 ```
 and the adjoint map computes `-δz`.
 """
-DiffZMap(T::Type, n::Int...) = FunctionMap{T}(x ->  deriv_z(x, n...)[:],
-                                              x -> -deriv_z(x, n...)[:], prod(n), prod(n))
+DiffZMap(T::Type, n::Int...) = LinearMap{T}(x ->  deriv_z(x, n...)[:],
+                                            x -> -deriv_z(x, n...)[:], prod(n), prod(n))
 DiffZMap(n::Int...) = DiffZMap(Float64, n...)
 
 """
@@ -133,8 +133,8 @@ The forward map computes the following operation
 ```
 and the adjoint map computes `-δx`.
 """
-DiffXMap(T::Type, n::Int...) = FunctionMap{T}(x ->  deriv_x(x, n...)[:],
-                                              x -> -deriv_x(x, n...)[:], prod(n), prod(n))
+DiffXMap(T::Type, n::Int...) = LinearMap{T}(x ->  deriv_x(x, n...)[:],
+                                            x -> -deriv_x(x, n...)[:], prod(n), prod(n))
 DiffXMap(n::Int...) = DiffXMap(Float64, n...)
 
 """
@@ -168,10 +168,10 @@ Calculates the discrete negative divergence of a `nz × nx × ny × ...` using f
 ∇\\cdot m_{i,j,k,...} = δ_x m_{i,j,k,...} +  ... + δ_z m_{i,j,k,...}
 ```
 """
-GradDivMap(T::Type, nz, nx) = FunctionMap{T}(x -> gradient(x, nz, nx)[:],
-                                             x -> -divergence(x, nz, nx)[:], 2nz*nx, nz*nx)
-GradDivMap(T::Type, nz, nx, ny) = FunctionMap{T}(x -> gradient(x, nz, nx, ny)[:],
-                                                 x -> -divergence(x, nz, nx, ny)[:], 3nz*nx*ny, nz*nx*ny)
+GradDivMap(T::Type, nz, nx) = LinearMap{T}(x -> gradient(x, nz, nx)[:],
+                                           x -> -divergence(x, nz, nx)[:], 2nz*nx, nz*nx)
+GradDivMap(T::Type, nz, nx, ny) = LinearMap{T}(x -> gradient(x, nz, nx, ny)[:],
+                                               x -> -divergence(x, nz, nx, ny)[:], 3nz*nx*ny, nz*nx*ny)
 GradDivMap(n...) = GradDivMap(Float64, n...)
 
 # Auxiliary functions
