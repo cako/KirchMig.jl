@@ -1,4 +1,5 @@
 ```@docs
+ConvMap
 LaplacianMap
 DiffZMap
 DiffXMap
