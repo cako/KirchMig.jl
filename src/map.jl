@@ -90,13 +90,13 @@ function KirchMap(t::AbstractVector{T},
     end
 
     if parallel_threaded_serial == "parallel"
-        nworkers() == 1 ? warn("Using only one worker") : nothing
+        nworkers() == 1 ? @warn("Using only one worker") : nothing
         return KirchMap{T}(x -> view(kirchmod_par(reshape(x, nzxy...), t, trav_r, trav_s), :),
                            x -> view(kirchmig_par(reshape(x, nr, ns, nt), t, trav_r, trav_s), :),
                            nr*ns*nt,
                            prod(nzxy))
     elseif parallel_threaded_serial == "threaded"
-        Threads.nthreads() == 1 ? warn("Using only one thread") : nothing
+        Threads.nthreads() == 1 ? @warn("Using only one thread") : nothing
         return KirchMap{T}(x -> view(kirchmod_thread(reshape(x, nzxy...), t, trav_r, trav_s), :),
                            x -> view(kirchmig_thread(reshape(x, nr, ns, nt), t, trav_r, trav_s), :),
                            nr*ns*nt,

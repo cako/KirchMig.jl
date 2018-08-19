@@ -176,25 +176,25 @@ GradDivMap(n...) = GradDivMap(Float64, n...)
 
 # Auxiliary functions
 function wav_conv(data::AbstractArray, wavelet::AbstractVector, nr, nt)
-    kt = indmax(abs.(hilbert(wavelet)))
+    kt = argmax(abs.(hilbert(wavelet)))
     return mapslices(x->conv(x, wavelet)[kt:kt+nt-1],
                      reshape(copy(data), nr, nt), [2])
 end
 
 function wav_corr(data::AbstractArray, wavelet::AbstractVector, nr, nt)
-    kt = indmax(abs.(hilbert(wavelet)))
+    kt = argmax(abs.(hilbert(wavelet)))
     return mapslices(x->conv(x, wavelet[end:-1:1])[nt-kt+1:2nt-kt],
                      reshape(copy(data), nr, nt), [2]);
 end
 
 function wav_conv(data::AbstractArray, wavelet::AbstractVector, nr, ns, nt)
-    kt = indmax(abs.(hilbert(wavelet)))
+    kt = argmax(abs.(hilbert(wavelet)))
     return mapslices(x->conv(x, wavelet)[kt:kt+nt-1],
                      reshape(copy(data), nr, ns, nt), [3])
 end
 
 function wav_corr(data::AbstractArray, wavelet::AbstractVector, nr, ns, nt)
-    kt = indmax(abs.(hilbert(wavelet)))
+    kt = argmax(abs.(hilbert(wavelet)))
     return mapslices(x->conv(x, wavelet[end:-1:1])[nt-kt+1:2nt-kt],
                      reshape(copy(data), nr, ns, nt), [3]);
 end

@@ -5,7 +5,7 @@ print("Loading KirchMig... ")
 using KirchMig
 println("done")
 print("Loading Base.Test... ")
-using Base.Test
+using Test
 println("done")
 print("Loading LinearMaps... ")
 import LinearMaps: LinearMap
@@ -44,7 +44,7 @@ for pts in ["parallel", "threaded", "serial"]
                                 " thread" * (Threads.nthreads() > 1 ? "s" : "") ) : nothing
     pts == "serial" ? println("  Using serial version") : nothing
     L = KirchMap(t, trav; parallel_threaded_serial=pts)
-    srand(1234)
+    Random.seed!(1234)
     u = rand(size(L, 2))
     v = rand(size(L, 1))
     print("    Forward:")
@@ -107,7 +107,7 @@ for pts in ["parallel", "threaded", "serial"]
     pts == "threaded" ? println("  Using ", Threads.nthreads(), " threads") : nothing
     pts == "serial" ? println("  Using serial version") : nothing
     L = KirchMap(t, trav; parallel_threaded_serial=pts)
-    srand(1234)
+    Random.seed!(1234)
     u = rand(size(L, 2))
     v = rand(size(L, 1))
     print("    Forward:")
@@ -138,7 +138,7 @@ rick_dt = ricker(t-t[div(nt,3)], 15);
 rick_dt[2:end-1] = (rick_dt[1:end-2] - rick_dt[3:end])/2(t[2] - t[1])
 
 W = ConvMap(rick_dt, nS, nt);
-srand(1234)
+Random.seed!(1234)
 u = rand(size(W, 2))
 v = rand(size(W, 1))
 v_hat = W*u;
@@ -156,7 +156,7 @@ rick_dt = ricker(t-t[div(nt,3)], 15)
 rick_dt[2:end-1] = (rick_dt[1:end-2] - rick_dt[3:end])/2(t[2] - t[1])
 
 W = ConvMap(rick_dt, nR, nS, nt);
-srand(1234)
+Random.seed!(1234)
 u = rand(size(W, 2))
 v = rand(size(W, 1))
 v_hat = W*u;
@@ -171,7 +171,7 @@ println("")
 println("2D Laplacian... ")
 Δ = KirchMig.LaplacianMap(nz, nx)
 
-srand(1234)
+Random.seed!(1234)
 u = rand(size(Δ, 2))
 v = rand(size(Δ, 1))
 v_hat = Δ*u;
@@ -186,7 +186,7 @@ println("")
 println("3D Laplacian... ")
 Δ = KirchMig.LaplacianMap(nz, nx, ny)
 
-srand(1234)
+Random.seed!(1234)
 u = rand(size(Δ, 2))
 v = rand(size(Δ, 1))
 v_hat = Δ*u;
@@ -201,7 +201,7 @@ println("")
 println("3D DiffZ... ")
 δz = KirchMig.DiffZMap(nz, nx, ny)
 
-srand(1234)
+Random.seed!(1234)
 u = rand(size(δz, 2))
 v = rand(size(δz, 1))
 v_hat = δz*u;
@@ -216,7 +216,7 @@ println("")
 println("2D DiffX... ")
 δx = KirchMig.DiffXMap(nz, nx)
 
-srand(1234)
+Random.seed!(1234)
 u = rand(size(δx, 2))
 v = rand(size(δx, 1))
 v_hat = δx*u;
@@ -231,7 +231,7 @@ println("")
 println("2D GradDiv... ")
 GD = KirchMig.GradDivMap(nz, nx)
 
-srand(1234)
+Random.seed!(1234)
 u = rand(size(GD, 2))
 v = rand(size(GD, 1))
 v_hat = GD*u;
@@ -246,7 +246,7 @@ println("")
 println("3D GradDiv... ")
 GD = KirchMig.GradDivMap(nz, nx, ny)
 
-srand(1234)
+Random.seed!(1234)
 u = rand(size(GD, 2))
 v = rand(size(GD, 1))
 v_hat = GD*u;

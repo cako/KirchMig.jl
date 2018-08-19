@@ -44,7 +44,7 @@ function eikonal_const_vel(src::AbstractMatrix{<:Real},
                            x::AbstractVector{<:Real},
                            velocity::Real)
     if velocity < 0
-        warn("Velocity cannot not be negative")
+        @warn("Velocity cannot not be negative")
         throw(DomainError())
     end
     size(src, 2) == 2 || throw(DimensionMismatch("Second dimension of `src` must match number of model arguments"))
@@ -65,7 +65,7 @@ function eikonal_const_vel(src::AbstractMatrix{<:Real},
                            y::AbstractVector{<:Real},
                            velocity::Real)
     if velocity < 0
-        warn("Velocity cannot not be negative")
+        @warn("Velocity cannot not be negative")
         throw(DomainError())
     end
     size(src, 2) == 3 || throw(DimensionMismatch("Second dimension of `src` must match number of model arguments"))

@@ -61,10 +61,10 @@ ax[2][:plot](250mod_bl[:,50]/vmax+500, z, color="#d62728");
 nr = 46
 
 rec_z = zeros(nr)
-rec_x = linspace(x[1], x[end], nr)
+rec_x = range(x[1], stop=x[end], length=nr)
 
 ns = 10
-srand(12)
+Random.seed!(12)
 src_z = zeros(ns)
 src_x = sort(rec_x[randperm(nr)][1:ns])
 
@@ -89,7 +89,7 @@ L = KirchMig.KirchMap(t, trav_r, trav_s)
 
 @time d = L*mod_bl[:];
 
-srand(1)
+Random.seed!(1)
 n = randn(size(d))
 d += n*std(d)/std(n);
 
@@ -104,7 +104,7 @@ for (i, axi) in enumerate(ax)
         vmin=-0.5maximum(abs.(csg)), vmax=0.5maximum(abs.(csg)), aspect="auto", cmap="gray", interpolation="none")
     axi[:scatter](src_x[idx[i]], t[1], color="#d62728", marker="*", s=200, clip_on=false, zorder=100)
     axi[:set](xlim=(rec_x[1],rec_x[end]), ylim=(t[end], t[1]), xlabel="Position [m]",
-        xticks = linspace(minimum(rec_x), maximum(rec_x), 6))
+        xticks = range(minimum(rec_x), stop=maximum(rec_x), length=6))
     if idx[i] != 1 && idx[i] != div(ns,rows)+1
         axi[:set](yticks=[])
     else
