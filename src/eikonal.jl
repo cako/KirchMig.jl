@@ -55,7 +55,7 @@ function eikonal_const_vel(src::AbstractMatrix{<:Real},
     X = [j for i in z, j in x]
     for is in 1:ns
         src_z, src_x = src[is, :]
-        trav[:,:,is] = sqrt.((Z-src_z).^2 + (X - src_x).^2)./velocity
+        trav[:,:,is] = @. sqrt.((Z - src_z)^2 + (X - src_x)^2)/velocity
     end
     return trav
 end
@@ -77,7 +77,7 @@ function eikonal_const_vel(src::AbstractMatrix{<:Real},
     Y = [k for i in z, j in x, k in y]
     for is in 1:ns
         src_z, src_x, src_y = src[is, :]
-        trav[:,:,:,is] = sqrt.((Z - src_z).^2 + (X-src_x).^2 + (Y-src_y).^2)./velocity
+        trav[:,:,:,is] = @. sqrt((Z - src_z)^2 + (X - src_x)^2 + (Y - src_y)^2)/velocity
     end
     return trav
 end

@@ -1,3 +1,6 @@
+using LinearAlgebra
+using Distributed
+
 ############
 # Utilities 
 ############
@@ -19,10 +22,10 @@ end
 
 # Auxiliary functions
 function kirchmod_kernel!(data, model, tt, ot, dt, nt)
-    its = round.(Int, (tt-ot)/dt)
-    its = min.(max.(its, 0), nt)+1
+    its = @. round(Int, (tt-ot)/dt)
+    its = @. min(max(its, 0), nt) + 1
     for ixyz = 1:length(its)
-        data[its[ixyz]] .+= model[ixyz]
+        data[its[ixyz]] += model[ixyz]
     end
 end
 
@@ -61,8 +64,8 @@ function kirchmod_thread(model::AbstractArray{T, N},
     colons = [Colon() for i=1:M-1]
 
     nthreads = Threads.nthreads()
-    v   = Vector{Vector{Matrix{T}}}(nthreads)
-    ind = Vector{Vector{Int}}(nthreads)
+    v   = Vector{Vector{Matrix{T}}}(undef, nthreads)
+    ind = Vector{Vector{Int}}(undef, nthreads)
     Threads.@threads for i in 1:nthreads
         v[i] = Matrix{T}[]
         ind[i] = Int[]
@@ -70,11 +73,11 @@ function kirchmod_thread(model::AbstractArray{T, N},
     Threads.@threads for i in 1:nthreads
         P = Threads.threadid()
         range = split(nr, nthreads, P)
-        @fastmath @inbounds @simd for ir in range
+        @fastmath @inbounds for ir in range
             rec = zeros(T, ns, nt+1)
             for is=1:ns
                 kirchmod_kernel!(view(rec, is, :), model,
-                                 trav_r[colons...,ir] + trav_s[colons...,is],
+                                 trav_r[colons...,ir] .+ trav_s[colons...,is],
                                  ot, dt, nt)
             end
             push!(v[P], rec[:,1:nt])
@@ -100,11 +103,11 @@ function kirchmod_par(model::AbstractArray{T, N},
     ot, dt, nt, nr, ns, nzxy = kirchmod_get_axes(model, t, trav_r, trav_s)
 
     colons = [Colon() for i=1:M-1]
-    data = @parallel vcat for ir=1:nr
+    data = @distributed vcat for ir=1:nr
         rec = zeros(T, ns, nt+1)
         @fastmath @inbounds @simd for is=1:ns
             kirchmod_kernel!(view(rec, is, :), model,
-                             trav_r[colons...,ir] + trav_s[colons...,is],
+                             trav_r[colons...,ir] .+ trav_s[colons...,is],
                              ot, dt, nt)
         end
         rec
@@ -126,7 +129,7 @@ function kirchmod(model::AbstractArray{T, N},
     @fastmath @inbounds for ir=1:nr
         @simd for is=1:ns
             kirchmod_kernel!(view(data, ir, is, :), model,
-                             trav_r[colons...,ir] + trav_s[colons...,is],
+                             trav_r[colons...,ir] .+ trav_s[colons...,is],
                              ot, dt, nt)
         end
     end
@@ -139,8 +142,8 @@ end
 
 # Auxiliary functions
 function kirchmig_kernel!(model, data, tt, ot, dt, nt)
-    its = round.(Int, (tt-ot)/dt)
-    its = min.(max.(its, 0), nt)+1
+    its = @. round(Int, (tt-ot)/dt)
+    its = @. min(max(its, 0), nt) + 1
     model .+= data[its[:]]
 end
 
@@ -185,7 +188,7 @@ function kirchmig_thread(data::AbstractArray{T, 3},
     colons = [Colon() for i=1:M-1]
 
     nthreads = Threads.nthreads()
-    v = Vector{Vector{Vector{T}}}(nthreads)
+    v = Vector{Vector{Vector{T}}}(undef, nthreads)
     Threads.@threads for i in 1:nthreads
         v[i] = Vector{T}[]
     end
@@ -193,10 +196,10 @@ function kirchmig_thread(data::AbstractArray{T, 3},
         mod = zeros(T, prod(nzxy))
         P = Threads.threadid()
         range = split(nr, nthreads, P)
-        @fastmath @inbounds @simd for ir in range
+        @fastmath @inbounds for ir in range
             for is=1:ns
                 kirchmig_kernel!(mod, data_[ir, is, :],
-                                 trav_r[colons..., ir] + trav_s[colons..., is],
+                                 trav_r[colons..., ir] .+ trav_s[colons..., is],
                                  ot, dt, nt)
             end
         end
@@ -218,11 +221,11 @@ function kirchmig_par(data::AbstractArray{T, 3},
     data_ = zeros(T, nr, ns, nt+1)
     data_[:,:,1:nt] = data
     colons = [Colon() for i=1:M-1]
-    model = @parallel (+) for ir=1:nr
+    model = @distributed (+) for ir=1:nr
         mod = zeros(T, prod(nzxy))
         @fastmath @inbounds @simd for is=1:ns
             kirchmig_kernel!(mod, data_[ir, is, :],
-                             trav_r[colons..., ir] + trav_s[colons..., is],
+                             trav_r[colons..., ir] .+ trav_s[colons..., is],
                              ot, dt, nt)
         end
         mod
@@ -247,7 +250,7 @@ function kirchmig(data::AbstractArray{T, 3},
     @fastmath @inbounds for ir=1:nr
         @simd for is=1:ns
             kirchmig_kernel!(model, data_[ir, is, :],
-                             trav_r[colons..., ir] + trav_s[colons..., is],
+                             trav_r[colons..., ir] .+ trav_s[colons..., is],
                              ot, dt, nt)
         end
     end

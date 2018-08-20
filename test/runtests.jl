@@ -1,14 +1,15 @@
+using Test
+using Printf
+using Distributed
+using Random
+using LinearAlgebra
+import LinearMaps: LinearMap, _ismutating
+
 print("Checking cores... ")
-Sys.CPU_CORES > 1 && addprocs(2)
+Sys.CPU_THREADS > 1 && addprocs(2)
 println("done")
 print("Loading KirchMig... ")
 using KirchMig
-println("done")
-print("Loading Base.Test... ")
-using Test
-println("done")
-print("Loading LinearMaps... ")
-import LinearMaps: LinearMap
 println("done")
 
 # Setup 2D
@@ -57,31 +58,9 @@ for pts in ["parallel", "threaded", "serial"]
     println(@sprintf("              ⟨L u, v⟩ = %.2f", vtv))
     @test abs(utu - vtv)/((utu+vtv)/2) <= 100*eps()
 
-    print("    Testing convenience functions... ")
-    inv = L\v
-    linv = 0.*similar(v)
-    A_mul_B!(linv, L, inv)
-    linv[1] ≈ 0.46369805743633524
-    linv[2] ≈ 0.46369805743633524
-    linv[3:52] ≈ zeros(50)
-
-    ltlinv = 0.*similar(u)
-    At_mul_B!(ltlinv, L, linv)
-    ltlinv[1] ≈ 109.6292557816823
-    ltlinv[3] ≈ 0.
-
-    ltlinv = At_mul_B(L, linv)
-    ltlinv[1] ≈ 109.6292557816823
-    ltlinv[3] ≈ 0.
-
-    ltlinv = 0.*similar(u)
-    Ac_mul_B!(ltlinv, L, linv)
-    ltlinv[1] ≈ 109.6292557816823
-    ltlinv[3] ≈ 0.
-
     issymmetric(L) == false
     isposdef(L) == false
-    KirchMig._ismutating(L.f)
+    _ismutating(L.f)
     println("done")
     println("")
 end
@@ -133,9 +112,9 @@ println("done")
 
 # Regularization
 println("2D ConvMap... ")
-ricker(t0, f) = (1 - 2pi^2 * f^2 * t0.^2) .* exp.(-pi^2 * f^2 * t0.^2)
-rick_dt = ricker(t-t[div(nt,3)], 15);
-rick_dt[2:end-1] = (rick_dt[1:end-2] - rick_dt[3:end])/2(t[2] - t[1])
+ricker(t0, f) = @. (1 - 2pi^2 * f^2 * t0^2) * exp(-pi^2 * f^2 * t0^2)
+rick_dt = ricker(t .- t[div(nt,3)], 15);
+rick_dt[2:end-1] = @. (rick_dt[1:end-2] - rick_dt[3:end])/2(t[2] - t[1])
 
 W = ConvMap(rick_dt, nS, nt);
 Random.seed!(1234)
@@ -151,10 +130,6 @@ println(@sprintf("            ⟨conv u, v⟩ = %.5f", vtv))
 println("")
 
 println("3D ConvMap... ")
-ricker(t0, f) = (1 - 2pi^2 * f^2 * t0.^2) .* exp.(-pi^2 * f^2 * t0.^2)
-rick_dt = ricker(t-t[div(nt,3)], 15)
-rick_dt[2:end-1] = (rick_dt[1:end-2] - rick_dt[3:end])/2(t[2] - t[1])
-
 W = ConvMap(rick_dt, nR, nS, nt);
 Random.seed!(1234)
 u = rand(size(W, 2))

@@ -1,29 +1,6 @@
 export KirchMap
 
-import Base: +, -, *, \, /, ==, transpose
-import LinearMaps: LinearMap
-
-struct KirchMap{T, F1, F2} <: LinearMap{T}
-    f::F1
-    fc::F2
-    M::Int
-    N::Int
-    _ismutating::Bool
-    _issymmetric::Bool
-    _ishermitian::Bool
-    _isposdef::Bool
-    _parallel_threaded_serial::String
-end
-
-# Constructors
-function KirchMap{T}(f::F1, fc::F2, M::Int, N::Int;
-                     ismutating::Bool = false,
-                     issymmetric::Bool = false,
-                     ishermitian::Bool=(T<:Real && issymmetric),
-                     isposdef::Bool = false,
-                     parallel_threaded_serial::String = "parallel") where {T,F1,F2}
-    KirchMap{T,F1,F2}(f, fc, M, N, ismutating, issymmetric, ishermitian, isposdef, parallel_threaded_serial)
-end
+using LinearMaps
 
 """
 `KirchMap{eltype(t)}(t, trav_r, [trav_s]; parallel_threaded_serial="serial")`
@@ -76,9 +53,9 @@ In both computations, the differential elements (which only affect amplitude) ar
 """
 KirchMap(t::AbstractVector{<:Real}, trav_r::AbstractArray{<:Real}; parallel_threaded_serial::String= "parallel") = KirchMap(t, trav_r, trav_r; parallel_threaded_serial=parallel_threaded_serial)
 function KirchMap(t::AbstractVector{T},
-                trav_r::AbstractArray{<:Real, N},
-                trav_s::AbstractArray{<:Real, N};
-                parallel_threaded_serial::String = "parallel") where {T<:Real, N}
+                  trav_r::AbstractArray{<:Real, N},
+                  trav_s::AbstractArray{<:Real, N};
+                  parallel_threaded_serial::String = "parallel") where {T<:Real, N}
     nr = size(trav_r)[end]
     ns = size(trav_s)[end]
     nzxy = size(trav_r)[1:N-1]
@@ -91,116 +68,23 @@ function KirchMap(t::AbstractVector{T},
 
     if parallel_threaded_serial == "parallel"
         nworkers() == 1 ? @warn("Using only one worker") : nothing
-        return KirchMap{T}(x -> view(kirchmod_par(reshape(x, nzxy...), t, trav_r, trav_s), :),
-                           x -> view(kirchmig_par(reshape(x, nr, ns, nt), t, trav_r, trav_s), :),
-                           nr*ns*nt,
-                           prod(nzxy))
+        return LinearMap{T}(
+            x -> view(kirchmod_par(reshape(x, nzxy...), t, trav_r, trav_s), :),
+            x -> view(kirchmig_par(reshape(x, nr, ns, nt), t, trav_r, trav_s), :),
+            nr*ns*nt,
+            prod(nzxy))
     elseif parallel_threaded_serial == "threaded"
         Threads.nthreads() == 1 ? @warn("Using only one thread") : nothing
-        return KirchMap{T}(x -> view(kirchmod_thread(reshape(x, nzxy...), t, trav_r, trav_s), :),
-                           x -> view(kirchmig_thread(reshape(x, nr, ns, nt), t, trav_r, trav_s), :),
-                           nr*ns*nt,
-                           prod(nzxy))
+        return LinearMap{T}(
+            x -> view(kirchmod_thread(reshape(x, nzxy...), t, trav_r, trav_s), :),
+            x -> view(kirchmig_thread(reshape(x, nr, ns, nt), t, trav_r, trav_s), :),
+            nr*ns*nt,
+            prod(nzxy))
     else
-        return KirchMap{T}(x -> view(kirchmod(reshape(x, nzxy...), t, trav_r, trav_s), :),
-                           x -> view(kirchmig(reshape(x, nr, ns, nt), t, trav_r, trav_s), :),
-                           nr*ns*nt,
-                           prod(nzxy))
-    end
-end
-
-# Inverse
-\(A::KirchMap, b) = cg(A'A, A'b, maxiter=5, log=false);
-
-# Show
-function Base.show(io::IO, A::KirchMap{T}) where {T}
-    print(io,"KirchMig.KirchMap{$T}($(A.f), $(A.fc), $(A.M), $(A.N); ismutating=$(A._ismutating), issymmetric=$(A._issymmetric), ishermitian=$(A._ishermitian), isposdef=$(A._isposdef), parallel_threaded_serial=$(A._parallel_threaded_serial))")
-end
-
-# Properties
-Base.size(A::KirchMap) = (A.M, A.N)
-Base.issymmetric(A::KirchMap) = A._issymmetric
-Base.ishermitian(A::KirchMap) = A._ishermitian
-Base.isposdef(A::KirchMap) = A._isposdef
-ismutating(A::KirchMap) = A._ismutating
-_ismutating(f) = first(methods(f)).nargs == 3
-
-# Multiplication with vector
-function Base.A_mul_B!(y::AbstractVector, A::KirchMap, x::AbstractVector)
-    (length(x) == A.N && length(y) == A.M) || throw(DimensionMismatch())
-    ismutating(A) ? A.f(y,x) : copy!(y,A.f(x))
-    return y
-end
-function *(A::KirchMap, x::AbstractVector)
-    length(x) == A.N || throw(DimensionMismatch())
-    if ismutating(A)
-        y = similar(x, promote_type(eltype(A), eltype(x)), A.M)
-        A.f(y,x)
-    else
-        y = A.f(x)
-    end
-    return y
-end
-
-function Base.At_mul_B!(y::AbstractVector, A::KirchMap, x::AbstractVector)
-    issymmetric(A) && return Base.A_mul_B!(y, A, x)
-    (length(x) == A.M && length(y) == A.N) || throw(DimensionMismatch())
-    if A.fc != nothing
-        if !isreal(A)
-            x = conj(x)
-        end
-        (ismutating(A) ? A.fc(y,x) : copy!(y, A.fc(x)))
-        if !isreal(A)
-            conj!(y)
-        end
-        return y
-    else
-        error("transpose not implemented for $A")
-    end
-end
-function Base.At_mul_B(A::KirchMap, x::AbstractVector)
-    issymmetric(A) && return A*x
-    length(x) == A.M || throw(DimensionMismatch())
-    if A.fc != nothing
-        if !isreal(A)
-            x = conj(x)
-        end
-        if ismutating(A)
-            y = similar(x, promote_type(eltype(A), eltype(x)), A.N)
-            A.fc(y,x)
-        else
-            y = A.fc(x)
-        end
-        if !isreal(A)
-            conj!(y)
-        end
-        return y
-    else
-        error("transpose not implemented for $A")
-    end
-end
-
-function Base.Ac_mul_B!(y::AbstractVector, A::KirchMap, x::AbstractVector)
-    ishermitian(A) && return Base.A_mul_B!(y,A,x)
-    (length(x) == A.M && length(y) == A.N) || throw(DimensionMismatch())
-    if A.fc != nothing
-        return (ismutating(A) ? A.fc(y, x) : copy!(y, A.fc(x)))
-    else
-        error("adjoint not implemented for $A")
-    end
-end
-function Base.Ac_mul_B(A::KirchMap, x::AbstractVector)
-    ishermitian(A) && return A*x
-    length(x) == A.M || throw(DimensionMismatch())
-    if A.fc != nothing
-        if ismutating(A)
-            y = similar(x, promote_type(eltype(A), eltype(x)), A.N)
-            A.fc(y,x)
-        else
-            y = A.fc(x)
-        end
-        return y
-    else
-        error("adjoint not implemented for $A")
+        return LinearMap{T}(
+            x -> view(kirchmod(reshape(x, nzxy...), t, trav_r, trav_s), :),
+            x -> view(kirchmig(reshape(x, nr, ns, nt), t, trav_r, trav_s), :),
+            nr*ns*nt,
+            prod(nzxy))
     end
 end

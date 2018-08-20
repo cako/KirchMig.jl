@@ -1,5 +1,5 @@
 export ConvMap, LaplacianMap, DiffZMap, DiffXMap, GradDivMap
-import DSP: hilbert
+import DSP: hilbert, conv
 import LinearMaps: LinearMap
 
 """
@@ -178,25 +178,25 @@ GradDivMap(n...) = GradDivMap(Float64, n...)
 function wav_conv(data::AbstractArray, wavelet::AbstractVector, nr, nt)
     kt = argmax(abs.(hilbert(wavelet)))
     return mapslices(x->conv(x, wavelet)[kt:kt+nt-1],
-                     reshape(copy(data), nr, nt), [2])
+                     reshape(copy(data), nr, nt), dims=[2])
 end
 
 function wav_corr(data::AbstractArray, wavelet::AbstractVector, nr, nt)
     kt = argmax(abs.(hilbert(wavelet)))
     return mapslices(x->conv(x, wavelet[end:-1:1])[nt-kt+1:2nt-kt],
-                     reshape(copy(data), nr, nt), [2]);
+                     reshape(copy(data), nr, nt), dims=[2]);
 end
 
 function wav_conv(data::AbstractArray, wavelet::AbstractVector, nr, ns, nt)
     kt = argmax(abs.(hilbert(wavelet)))
     return mapslices(x->conv(x, wavelet)[kt:kt+nt-1],
-                     reshape(copy(data), nr, ns, nt), [3])
+                     reshape(copy(data), nr, ns, nt), dims=[3])
 end
 
 function wav_corr(data::AbstractArray, wavelet::AbstractVector, nr, ns, nt)
     kt = argmax(abs.(hilbert(wavelet)))
     return mapslices(x->conv(x, wavelet[end:-1:1])[nt-kt+1:2nt-kt],
-                     reshape(copy(data), nr, ns, nt), [3]);
+                     reshape(copy(data), nr, ns, nt), dims=[3]);
 end
 
 laplacian(x::AbstractArray) = laplacian(x, size(x)...)
