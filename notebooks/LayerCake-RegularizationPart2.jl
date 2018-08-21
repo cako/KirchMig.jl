@@ -26,10 +26,10 @@ mod_bl = hcat( (conv(refl[:,ix], rick)[div(nz-1,2)+1:div(3nz-1,2)] for ix in 1:n
 nr = 46
 
 rec_z = zeros(nr)
-rec_x = linspace(x[1], x[end], nr)
+rec_x = range(x[1], stop=x[end], length=nr)
 
 ns = 10
-srand(12)
+Random.seed!(12)
 src_z = zeros(ns)
 src_x = sort(rec_x[randperm(nr)][1:ns])
 
@@ -42,7 +42,7 @@ L = KirchMig.KirchMap(t, trav_r, trav_s)
 
 @time d = L*mod_bl[:];
 
-srand(1)
+Random.seed!(1)
 n = randn(size(d))
 d += n*std(d)/std(n);
 
@@ -54,7 +54,7 @@ function ∇J0!(storage, m)
     storage[1:end] = 2L'L*m - 2m_mig
 end
 
-srand(123);
+Random.seed!(123);
 
 nL = size(L, 2)
 u = randn(nL)
@@ -107,7 +107,7 @@ function ∇TV!(storage, x)
     storage[1:end] = -0.005*λ*KirchMig.divergence(grad[:], nz, nx)[:]
 end
 
-srand(123);
+Random.seed!(123);
 
 nL = size(L, 2)
 u = randn(nL)
@@ -132,7 +132,7 @@ function ∇JTV!(storage, x)
 end
 
 # Check gradient
-srand(123);
+Random.seed!(123);
 
 nL = size(L, 2)
 u = randn(nL)

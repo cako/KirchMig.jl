@@ -1,5 +1,5 @@
 
-#addprocs(Sys.CPU_CORES)
+#addprocs(Sys.CPU_THREADS)
 import PyPlot; const plt = PyPlot
 import KirchMig; const km = KirchMig;
 
@@ -92,7 +92,7 @@ for (i, axi) in enumerate(ax)
         vmin=-0.5maximum(abs.(csg)), vmax=0.5maximum(abs.(csg)), aspect="auto", cmap="gray", interpolation="none")
     axi[:scatter](src_x[idx[i]], t[1], color="#d62728", marker="*", s=200, clip_on=false, zorder=100)
     axi[:set](xlim=(src_x[1],src_x[end]), ylim=(t[end], t[1]), xlabel="Position [m]",
-        xticks = linspace(minimum(src_x), maximum(src_x), 5))
+        xticks = range(minimum(src_x), stop=maximum(src_x), length=5))
     if idx[i] != 1 && idx[i] != div(ns,rows)+1
         axi[:set](yticks=[])
     else

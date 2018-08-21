@@ -24,7 +24,7 @@ trav = eikonal_const_vel([src_x src_y src_z], x, y, z, vel)
 
 pts = length(ARGS) == 0 ? "serial" : ARGS[1]
 L = KirchMap(t, trav; parallel_threaded_serial=pts)
-srand(1234)
+Random.seed!(1234)
 u = rand(size(L, 2))
 v = rand(size(L, 1))
 

@@ -1,4 +1,3 @@
-__precompile__(true)
 """
 Main module for `KirchMig.jl` -- a Julia package for Kirchhoff migration.
 """

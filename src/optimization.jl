@@ -1,4 +1,5 @@
 export cg
+using LinearAlgebra
 
 """
 `cg(A, b [, x0];  maxiter=10, tol=1e-3, log=false) -> x [, history_x, history_r]`
