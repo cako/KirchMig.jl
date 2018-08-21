@@ -1,5 +1,5 @@
 
-#addprocs(Sys.CPU_CORES)
+#addprocs(Sys.CPU_THREADS)
 import PyPlot; const plt = PyPlot
 import KirchMig; const km = KirchMig;
 
