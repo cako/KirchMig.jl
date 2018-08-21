@@ -14,5 +14,6 @@
 
 To install the package, use the following command inside Julia's REPL:
 ```julia
-Pkg.clone("https://github.com/cako/KirchMig.jl")
+using Pkg
+Pkg.add(PackageSpec(url="https://github.com/cako/KirchMig.jl.git"))
 ```
