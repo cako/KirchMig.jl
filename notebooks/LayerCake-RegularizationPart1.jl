@@ -1,7 +1,3 @@
-using Pkg
-# Pkg.add("PyPlot")
-Pkg.clone("https://github.com/cako/KirchMig.jl")
-Pkg.checkout("KirchMig", "julia07fixes")
 
 using Distributed
 addprocs(Sys.CPU_THREADS)
@@ -94,7 +90,7 @@ fig[:tight_layout]()
 t = 0:0.008:1; nt = length(t)
 G = KirchMig.KirchMap(t, trav_r, trav_s);
 
-@time Gm = G*view(refl, :); # refl is 67×67 a array, view(refl, :) is a 4489-element vector
+@time Gm = G*refl[:]; # refl is 67×67 a array, refl[:] is a 4489-element vector
 
 ricker(t0, f) = @. (1 - 2pi^2 * f^2 * t0^2) * exp(-pi^2 * f^2 * t0^2)
 rick_dtt = ricker(t .- t[div(nt,5)], 15);
