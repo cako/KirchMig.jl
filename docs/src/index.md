@@ -17,10 +17,11 @@ In this way, the linear maps provided can be used in inversion methods, for exam
 
 ## Get started
 
-Once [Julia 0.6.2](https://julialang.org/downloads/) is installed, open the REPL and run
+Once [Julia 1.0](https://julialang.org/downloads/) is installed, open the REPL and run
 
 ```bash
-Pkg.clone("https://github.com/cako/KirchMig.jl")
+using Pkg
+Pkg.add(PackageSpec(url="https://github.com/cako/KirchMig.jl.git"))
 ```
 
 A few examples are provided as scripts and Jupyter notebooks [here](https://github.com/cako/KirchMig.jl/tree/master/notebooks).
