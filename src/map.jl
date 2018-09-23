@@ -63,7 +63,7 @@ function KirchMap(t::AbstractVector{T},
     ot, dt, nt = t[1], t[2]-t[1], length(t)
 
     if nzxy != NZXY
-        throw(DimensionMismatch("1st $(M-1) dimensions of trav_r and trav_s must be the same"))
+        throw(DimensionMismatch("1st $(N-1) dimensions of trav_r and trav_s must be the same"))
     end
 
     if parallel_threaded_serial == "parallel"

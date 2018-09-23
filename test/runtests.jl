@@ -37,6 +37,12 @@ src_z = zeros(nR)
 trav = eikonal_const_vel([src_z src_x], z, x, vel)
 println("done")
 
+try
+   L = KirchMap(t, trav, trav[1:end-1, :, :])
+catch err
+    @test isa(err, DimensionMismatch)
+end
+
 # Dot test 2D
 println("2D Kirchhoff...")
 for pts in ["parallel", "threaded", "serial"]
