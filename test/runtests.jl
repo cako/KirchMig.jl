@@ -103,12 +103,32 @@ for pts in ["parallel", "threaded", "serial"]
 end
 
 # cg
-print("Conjugate gradients... ")
-Id = LinearMap(x->2*x, x->2*x, 10, 10)
+println("Conjugate gradients... ")
+M, N = 10, 5
+function fwd(x)
+    y = zeros(eltype(x), M)
+    y[1:N] = 2x .+ x[end:-1:1]
+    return y
+end
+function adj(x)
+    return 2x[1:N] .+ x[1:N][end:-1:1]
+end
+Id = LinearMap(fwd, adj, M, N)
+u = rand(size(Id, 2))
+v = rand(size(Id, 1))
+v_hat = Id*u;
+u_hat = Id'v;
+utu =  dot(u_hat, u)
+vtv =  dot(v_hat, v)
+println(@sprintf("  Dot test: ⟨corr v, u⟩ = %.5f", utu))
+println(@sprintf("            ⟨conv u, v⟩ = %.5f", vtv))
+@test abs(utu - vtv)/((utu+vtv)/2) <= 100eps()
+
 b = rand(size(Id, 1))
 x, hist_x, hist_r = cg(Id'Id, Id'b, log=true)
-@test 2x ≈ b
+@test x ≈ inv(Matrix(Id'Id))*(Id'b)
 println("done")
+println("")
 
 # Regularization
 println("2D ConvMap... ")
