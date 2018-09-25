@@ -98,7 +98,7 @@ rows = 10
 fig, ax = plt.subplots(rows, div(ns, rows), figsize=(12,4rows))
 idx = reshape(1:rows*div(ns, rows), div(ns, rows), rows)'
 for (i, axi) in enumerate(ax)
-    csg = data[:,idx[i],:]'
+    csg = Array(data[:,idx[i],:]')
     cax = axi[:imshow](csg, extent=[src_x[1], src_x[end], t[end], t[1]],
         vmin=-0.5maximum(abs.(csg)), vmax=0.5maximum(abs.(csg)), aspect="auto", cmap="gray", interpolation="none")
     axi[:scatter](src_x[idx[i]], t[1], color="#d62728", marker="*", s=200, clip_on=false, zorder=100)
