@@ -4,6 +4,8 @@
 [![build](https://travis-ci.org/cako/KirchMig.jl.svg?branch=master)](https://travis-ci.org/cako/KirchMig.jl)<!-- [![coveralls](https://coveralls.io/repos/github/cako/KirchMig.jl/badge.svg)](https://coveralls.io/github/cako/KirchMig.jl) -->
 [![codecov](https://codecov.io/gh/cako/KirchMig.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/cako/KirchMig.jl)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/JuliaMath/IterativeSolvers.jl/blob/master/LICENSE)
+[![DOI](https://zenodo.org/badge/127479826.svg)](https://zenodo.org/badge/latestdoi/127479826)
+
 
 `KirchMig` is a [Julia](http://julialang.org) package to perform Kirchhoff migration and demigration.
 
