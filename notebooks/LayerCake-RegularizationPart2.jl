@@ -67,14 +67,14 @@ xran = x[end]-x[1]
 mod_mig = reshape(m_mig, nz, nx)
 vmin, vmax = maximum(abs.(mod_mig))*[-1,1]
 fig, ax = plt.subplots(figsize=(6,4))
-cax = ax[:imshow](mod_mig, extent=[x[1], x[end], z[end], z[1]],
+cax = ax.imshow(mod_mig, extent=[x[1], x[end], z[end], z[1]],
     vmin=vmin, vmax=vmax, aspect="equal", cmap="gray", interpolation=nothing)
-cbar = fig[:colorbar](cax, ax=ax)
-cbar[:ax][:set](ylabel="Amplitude");
-ax[:plot](xran*mod_mig[:,div(end,2)]./(4vmax) .+ xran./2, z, color="#d62728");
-ax[:set](xlim=(x[1], x[end]), ylim=(z[end], z[1]), xlabel="Position [m]", ylabel="Depth [m]",
+cbar = fig.colorbar(cax, ax=ax)
+cbar.ax.set(ylabel="Amplitude");
+ax.plot(xran*mod_mig[:,div(end,2)]./(4vmax) .+ xran./2, z, color="#d62728");
+ax.set(xlim=(x[1], x[end]), ylim=(z[end], z[1]), xlabel="Position [m]", ylabel="Depth [m]",
     title="Migrated image")
-fig[:tight_layout]()
+fig.tight_layout()
 
 J0(m) = norm(L*m - d)^2
 
@@ -108,14 +108,14 @@ xran = x[end]-x[1]
 mod_lsm_0 = reshape(res.minimizer, nz, nx)
 vmin, vmax = pclip*maximum(abs.(mod_lsm_0))*[-1,1]
 fig, ax = plt.subplots(figsize=(6,4))
-cax = ax[:imshow](mod_lsm_0, extent=[x[1], x[end], z[end], z[1]],
+cax = ax.imshow(mod_lsm_0, extent=[x[1], x[end], z[end], z[1]],
     vmin=vmin, vmax=vmax, aspect="equal", cmap="gray", interpolation=nothing)
-cbar = fig[:colorbar](cax, ax=ax)
-cbar[:ax][:set](ylabel="Amplitude");
-ax[:plot](xran*mod_lsm_0[:,div(end,2)]./(4vmax) .+ xran./2, z, color="#d62728");
-ax[:set](xlim=(x[1], x[end]), ylim=(z[end], z[1]), xlabel="Position [m]", ylabel="Depth [m]",
+cbar = fig.colorbar(cax, ax=ax)
+cbar.ax.set(ylabel="Amplitude");
+ax.plot(xran*mod_lsm_0[:,div(end,2)]./(4vmax) .+ xran./2, z, color="#d62728");
+ax.set(xlim=(x[1], x[end]), ylim=(z[end], z[1]), xlabel="Position [m]", ylabel="Depth [m]",
     title="LSM image: no reg.")
-fig[:tight_layout]()
+fig.tight_layout()
 
 @time λ, ϕ = eigs(L'L; nev=1, maxiter=2); λ = λ[1]
 
@@ -183,11 +183,11 @@ xran = x[end]-x[1]
 mod_lsm_tv = reshape(res_tv.minimizer, nz, nx)
 vmin, vmax = pclip*maximum(abs.(mod_lsm_tv))*[-1,1]
 fig, ax = plt.subplots(figsize=(6,4))
-cax = ax[:imshow](mod_lsm_tv, extent=[x[1], x[end], z[end], z[1]],
+cax = ax.imshow(mod_lsm_tv, extent=[x[1], x[end], z[end], z[1]],
     vmin=vmin, vmax=vmax, aspect="equal", cmap="gray", interpolation=nothing)
-cbar = fig[:colorbar](cax, ax=ax)
-cbar[:ax][:set](ylabel="Amplitude");
-ax[:plot](xran*mod_lsm_tv[:,div(end,2)]./(4vmax) .+ xran./2, z, color="#d62728");
-ax[:set](xlim=(x[1], x[end]), ylim=(z[end], z[1]), xlabel="Position [m]", ylabel="Depth [m]",
+cbar = fig.colorbar(cax, ax=ax)
+cbar.ax.set(ylabel="Amplitude");
+ax.plot(xran*mod_lsm_tv[:,div(end,2)]./(4vmax) .+ xran./2, z, color="#d62728");
+ax.set(xlim=(x[1], x[end]), ylim=(z[end], z[1]), xlabel="Position [m]", ylabel="Depth [m]",
     title="LSM image: TV reg.")
-fig[:tight_layout]()
+fig.tight_layout()

@@ -99,8 +99,9 @@ The forward map computes the following operation
 ```
 and the adjoint map computes `-δz`.
 """
-DiffZMap(T::Type, n::Int...) = LinearMap{T}(x ->  deriv_z(x, n...)[:],
-                                            x -> -deriv_z(x, n...)[:], prod(n), prod(n))
+DiffZMap(T::Type, n::Int...) = LinearMap{T}(x -> copy(deriv_z(x, n...)[:]),
+                                            x -> copy(-deriv_z(x, n...)[:]),
+                                            prod(n), prod(n))
 DiffZMap(n::Int...) = DiffZMap(Float64, n...)
 
 """
