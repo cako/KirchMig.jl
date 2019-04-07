@@ -3,6 +3,7 @@ using Documenter, KirchMig
 makedocs(
     modules = [KirchMig],
     doctest = true,
+    sitename = "KirchMig.jl",
 )
  
 deploydocs(
