@@ -70,9 +70,9 @@ LaplacianMap(T::Type, n::Int...) = LinearMap{T}(x -> laplacian(x, n...)[:], prod
 LaplacianMap(n::Int...) = LaplacianMap(Float64, n...)
 
 """
-`DiffZMap([T,] n...) -> δz`
+`DiffZMap([T,] n...[; order=4]) -> δz`
 
-Construct a discretized z-derivative operator `δz` which will act on an `AbstractVector`.
+Construct a discretized z-derivative operator `δz` of order `order` which will act on an `AbstractVector`.
 
 Parameters
 ----------
@@ -84,30 +84,49 @@ Parameters
 
 Sequence of spatial dimensions of `δz`.
 
+* `order` : `Int`, optional
+
+Order of central finite-difference approximation. Available options are 2, 4 and 8.
+
+
 Usage
 -----
-* Forward map and Adjoint maps
-
 The forward map `δz` multiplies a model vector of size `nz × nx × ny × ...` its first order z-derivative. The adjoint map is minus the forward map.
 
 Description
 -----------
 
-The forward map computes the following operation
 ```math
-δ_z m_{i,j,k,...} = (m_{l+1,...} - m_{l-1,...})/2
+δ_z m_{i,...} = (m_{i+1,...} - m_{i-1,...})/2
 ```
-and the adjoint map computes `-δz`.
+for `order=2`,
+```math
+δ_z m_{i,...} =
+\\left(\\frac{1}{12} m_{i+2,...} - \\frac{2}{3}  m_{i+1,...}
+     + \\frac{2}{3}  m_{i-1,...} - \\frac{1}{12} m_{i-2,...}
+\\right)
+```
+for `order=4`, and
+```math
+δ_z m_{i,...} =
+\\left(\\frac{1}{280} m_{i+4,...} - \\frac{4}{105} m_{i+3,...}
+     + \\frac{1}{5}   m_{i+2,...} - \\frac{4}{5}   m_{i+1,...}
+     - \\frac{1}{280} m_{i+4,...} + \\frac{4}{105} m_{i+3,...}
+     - \\frac{1}{5}   m_{i+2,...} + \\frac{4}{5}   m_{i+1,...}
+\\right)
+```
+for `order=8`. The adjoint map for any order computes `-δz`.
 """
-DiffZMap(T::Type, n::Int...) = LinearMap{T}(x -> copy(deriv_z(x, n...)[:]),
-                                            x -> copy(-deriv_z(x, n...)[:]),
-                                            prod(n), prod(n))
-DiffZMap(n::Int...) = DiffZMap(Float64, n...)
+DiffZMap(T::Type, n::Int...; order=4) = LinearMap{T}(
+    x -> copy( deriv_z(x, n...; order=order)[:]),
+    x -> copy(-deriv_z(x, n...; order=order)[:]),
+    prod(n), prod(n))
+DiffZMap(n::Int...; order=4) = DiffZMap(Float64, n...; order=order)
 
 """
-`DiffXMap([T,] n...) -> δx`
+`DiffZMap([T,] n...[; order=4]) -> δx`
 
-Construct a discretized x-derivative operator `δx` which will act on an `AbstractVector`.
+Construct a discretized x-derivative operator `δx` of order `order` which will act on an `AbstractVector`.
 
 Parameters
 ----------
@@ -119,29 +138,49 @@ Parameters
 
 Sequence of spatial dimensions of `δx`.
 
+* `order` : `Int`, optional
+
+Order of central finite-difference approximation. Available options are 2, 4 and 8.
+
+
 Usage
 -----
-* Forward map and Adjoint maps
-
 The forward map `δx` multiplies a model vector of size `nz × nx × ny × ...` its first order x-derivative. The adjoint map is minus the forward map.
 
 Description
 -----------
 
-The forward map computes the following operation
 ```math
-δ_x m_{i,j,k,...} = (m_{l+1,...} - m_{l-1,...})/2
+δ_x m_{i,j,...} = (m_{i,j+1,...} - m_{i,j-1,...})/2
 ```
-and the adjoint map computes `-δx`.
+for `order=2`,
+```math
+δ_x m_{i,j,k,...} =
+\\left(\\frac{1}{12} m_{i,j+2,...} - \\frac{2}{3}  m_{i,j+1,...}
+     + \\frac{2}{3}  m_{i,j-1,...} - \\frac{1}{12} m_{i,j-2,...}
+\\right)
+```
+for `order=4`, and
+```math
+δ_x m_{i,j,...} =
+\\left(\\frac{1}{280} m_{i,j+4,...} - \\frac{4}{105} m_{i,j+3,...}
+     + \\frac{1}{5}   m_{i,j+2,...} - \\frac{4}{5}   m_{i,j+1,...}
+     - \\frac{1}{280} m_{i,j+4,...} + \\frac{4}{105} m_{i,j+3,...}
+     - \\frac{1}{5}   m_{i,j+2,...} + \\frac{4}{5}   m_{i,j+1,...}
+\\right)
+```
+for `order=8`. The adjoint map for any order computes `-δz`.
 """
-DiffXMap(T::Type, n::Int...) = LinearMap{T}(x ->  deriv_x(x, n...)[:],
-                                            x -> -deriv_x(x, n...)[:], prod(n), prod(n))
-DiffXMap(n::Int...) = DiffXMap(Float64, n...)
+DiffXMap(T::Type, n::Int...; order=4) = LinearMap{T}(
+    x ->  deriv_x(x, n...; order=order)[:],
+    x -> -deriv_x(x, n...; order=order)[:],
+    prod(n), prod(n))
+DiffXMap(n::Int...; order=4) = DiffXMap(Float64, n...; order=order)
 
 """
-`GradDivMap([T,] n...) -> GD`
+`GradDivMap([T,] n...[; order=4]) -> GD`
 
-Construct a discretized gradient operator GD which will act on an `AbstractVector`.
+Construct a discretized gradient operator `GD` which will act on an `AbstractVector`.
 
 Parameters
 ----------
@@ -153,27 +192,35 @@ Parameters
 
 Sequence of spatial dimensions of `GD`.
 
+* `order` : `Int`, optional
+
+Order of central finite-difference approximation. Available options are 2, 4 and 8.
+
 Usage
 -----
 * Forward map
 
-Calculates the discrete gradient of a `nz × nx × ny × ...` using first order central differences.
+Calculates the discrete gradient of a `nz × nx × ny × ...` using central differences.
 ```math
 ∇m_{i,j,k,...} = [δ_x m_{i,j,k,...},  ..., δ_z m_{i,j,k,...}]
 ```
 
 * Adjoint map
 
-Calculates the discrete negative divergence of a `nz × nx × ny × ...` using first order central differences.
+Calculates the discrete negative divergence of a `nz × nx × ny × ...` using central differences.
 ```math
-∇\\cdot m_{i,j,k,...} = δ_x m_{i,j,k,...} +  ... + δ_z m_{i,j,k,...}
+-∇\\cdot m_{i,j,k,...} = -δ_x m_{i,j,k,...} -  ... - δ_z m_{i,j,k,...}
 ```
 """
-GradDivMap(T::Type, nz, nx) = LinearMap{T}(x -> gradient(x, nz, nx)[:],
-                                           x -> -divergence(x, nz, nx)[:], 2nz*nx, nz*nx)
-GradDivMap(T::Type, nz, nx, ny) = LinearMap{T}(x -> gradient(x, nz, nx, ny)[:],
-                                               x -> -divergence(x, nz, nx, ny)[:], 3nz*nx*ny, nz*nx*ny)
-GradDivMap(n...) = GradDivMap(Float64, n...)
+GradDivMap(T::Type, nz, nx; order=4) = LinearMap{T}(
+    x ->    gradient(x, nz, nx; order=order)[:],
+    x -> -divergence(x, nz, nx; order=order)[:],
+    2nz*nx, nz*nx)
+GradDivMap(T::Type, nz, nx, ny; order=4) = LinearMap{T}(
+    x ->    gradient(x, nz, nx, ny; order=order)[:],
+    x -> -divergence(x, nz, nx, ny; order=order)[:],
+    3nz*nx*ny, nz*nx*ny)
+GradDivMap(n...; order=4) = GradDivMap(Float64, n...; order=order)
 
 # Auxiliary functions
 function wav_conv(data::AbstractArray, wavelet::AbstractVector, nr, nt)
@@ -235,74 +282,169 @@ function laplacian(x::AbstractArray{T}, nz, nx, ny) where T
     return dx[2:nz+1, 2:nx+1, 2:ny+1] + dy[2:nz+1, 2:nx+1, 2:ny+1] + dz[2:nz+1, 2:nx+1, 2:ny+1]
 end
 
-deriv_z(x::AbstractArray) = deriv_z(x, size(x)...)
-function deriv_z(x::AbstractArray{T}, n...) where T
-    x_ = zeros(T, n[1]+2, n[2:end]...)
-
+deriv_z(x::AbstractArray; order=4) = deriv_z(x, size(x)...; order=order)
+function deriv_z(x::AbstractArray{T}, n...; order=4) where T
     colons = [Colon() for i=2:length(n)]
 
-    x_[2:n[1]+1, colons...] = reshape(x, n[1], n[2:end]...)
-
+    x_ = reshape(x, n...)
     dz = zero(x_)
-    @fastmath @inbounds @simd for i in 2:n[1]+1
-        dz[i,colons...] = (x_[i+1,colons...] - x_[i-1,colons...])/2.
+
+    zero_slice = zero(x_[1, colons...])
+    if order == 2
+        @fastmath @inbounds @simd for i in 1:n[1]
+            xm1 = i-1 >= 1    ? x_[i-1, colons...] : zero_slice
+            xp1 = i+1 <= n[1] ? x_[i+1, colons...] : zero_slice
+            @. dz[i,colons...] = (xp1 - xm1)/T(2)
+        end
+    elseif order == 8
+        @fastmath @inbounds @simd for i in 1:n[1]
+            xm1 = i-1 >= 1    ? x_[i-1, colons...] : zero_slice
+            xp1 = i+1 <= n[1] ? x_[i+1, colons...] : zero_slice
+
+            xm2 = i-2 >= 1    ? x_[i-2, colons...] : zero_slice
+            xp2 = i+2 <= n[1] ? x_[i+2, colons...] : zero_slice
+
+            xm3 = i-3 >= 1    ? x_[i-3, colons...] : zero_slice
+            xp3 = i+3 <= n[1] ? x_[i+3, colons...] : zero_slice
+
+            xm4 = i-4 >= 1    ? x_[i-4, colons...] : zero_slice
+            xp4 = i+4 <= n[1] ? x_[i+4, colons...] : zero_slice
+
+            @. dz[i,colons...] = ( xm4/T(280) - T(4)*xm3/T(105) + xm2/T(5) - T(4)*xm1/T(5) +
+                                  -xp4/T(280) + T(4)*xp3/T(105) - xp2/T(5) + T(4)*xp1/T(5))
+        end
+    else
+        @fastmath @inbounds @simd for i in 1:n[1]
+            xm1 = i-1 >= 1    ? x_[i-1, colons...] : zero_slice
+            xp1 = i+1 <= n[1] ? x_[i+1, colons...] : zero_slice
+
+            xm2 = i-2 >= 1    ? x_[i-2, colons...] : zero_slice
+            xp2 = i+2 <= n[1] ? x_[i+2, colons...] : zero_slice
+
+            @. dz[i,colons...] = xm2/T(12) - T(2)*xm1/T(3) + T(2)*xp1/T(3) - xp2/T(12)
+        end
     end
-    return dz[2:n[1]+1, colons...]
+
+    return dz
 end
 
-deriv_x(x::AbstractArray) = deriv_x(x, size(x)...)
-function deriv_x(x::AbstractArray{T}, n...) where T
-    x_ = zeros(T, n[1], n[2]+2, n[3:end]...)
-
+deriv_x(x::AbstractArray; order=4) = deriv_x(x, size(x)...; order=order)
+function deriv_x(x::AbstractArray{T}, n...; order=4) where T
     colons = [Colon() for i=3:length(n)]
 
-    x_[:, 2:n[2]+1, colons...] = reshape(x, n[1], n[2], n[3:end]...)
+    x_ = reshape(x, n...)
+    dz = zero(x_)
 
-    dx = zero(x_)
-    @fastmath @inbounds @simd for i in 2:n[2]+1
-        dx[:,i,colons...] = (x_[:,i+1,colons...] - x_[:,i-1,colons...])/2.
+    zero_slice = zero(x_[:, 1, colons...])
+    if order == 2
+        @fastmath @inbounds @simd for i in 1:n[2]
+            xm1 = i-1 >= 1    ? x_[:,i-1, colons...] : zero_slice
+            xp1 = i+1 <= n[2] ? x_[:,i+1, colons...] : zero_slice
+            @. dz[:,i,colons...] = (xp1 - xm1)/T(2)
+        end
+    elseif order == 8
+        @fastmath @inbounds @simd for i in 1:n[2]
+            xm1 = i-1 >= 1    ? x_[:,i-1, colons...] : zero_slice
+            xp1 = i+1 <= n[2] ? x_[:,i+1, colons...] : zero_slice
+
+            xm2 = i-2 >= 1    ? x_[:,i-2, colons...] : zero_slice
+            xp2 = i+2 <= n[2] ? x_[:,i+2, colons...] : zero_slice
+
+            xm3 = i-3 >= 1    ? x_[:,i-3, colons...] : zero_slice
+            xp3 = i+3 <= n[2] ? x_[:,i+3, colons...] : zero_slice
+
+            xm4 = i-4 >= 1    ? x_[:,i-4, colons...] : zero_slice
+            xp4 = i+4 <= n[2] ? x_[:,i+4, colons...] : zero_slice
+
+            @. dz[:,i,colons...] = ( xm4/T(280) - T(4)*xm3/T(105) + xm2/T(5) - T(4)*xm1/T(5) +
+                                    -xp4/T(280) + T(4)*xp3/T(105) - xp2/T(5) + T(4)*xp1/T(5))
+        end
+    else
+        @fastmath @inbounds @simd for i in 1:n[2]
+            xm1 = i-1 >= 1    ? x_[:,i-1, colons...] : zero_slice
+            xp1 = i+1 <= n[2] ? x_[:,i+1, colons...] : zero_slice
+
+            xm2 = i-2 >= 1    ? x_[:,i-2, colons...] : zero_slice
+            xp2 = i+2 <= n[2] ? x_[:,i+2, colons...] : zero_slice
+
+            @. dz[:,i,colons...] = xm2/T(12) - T(2)*xm1/T(3) + T(2)*xp1/3 - xp2/T(12)
+        end
     end
-    return dx[:,2:n[2]+1, colons...]
+
+    return dz
 end
 
-deriv_y(x::AbstractArray) = deriv_y(x, size(x)...)
-function deriv_y(x::AbstractArray{T}, n...) where T
-    x_ = zeros(T, n[1:2]..., n[3]+2, n[4:end]...)
-
+deriv_y(x::AbstractArray; order=4) = deriv_y(x, size(x)...; order=order)
+function deriv_y(x::AbstractArray{T}, n...; order=4) where T
     colons = [Colon() for i=4:length(n)]
 
-    x_[:, :, 2:n[3]+1, colons...] = reshape(x, n[1:2]..., n[3], n[4:end]...)
+    x_ = reshape(x, n...)
+    dz = zero(x_)
 
-    dy = zero(x_)
-    @fastmath @inbounds @simd for i in 2:n[3]+1
-        dy[:,:,i,colons...] = (x_[:,:,i+1,colons...] - x_[:,:,i-1,colons...])/2.
+    zero_slice = zero(x_[:, :, 1, colons...])
+    if order == 2
+        @fastmath @inbounds @simd for i in 1:n[3]
+            xm1 = i-1 >= 1    ? x_[:,:,i-1, colons...] : zero_slice
+            xp1 = i+1 <= n[3] ? x_[:,:,i+1, colons...] : zero_slice
+            @. dz[:,:,i,colons...] = (xp1 - xm1)/T(2)
+        end
+    elseif order == 8
+        @fastmath @inbounds @simd for i in 1:n[3]
+            xm1 = i-1 >= 1    ? x_[:,:,i-1, colons...] : zero_slice
+            xp1 = i+1 <= n[3] ? x_[:,:,i+1, colons...] : zero_slice
+
+            xm2 = i-2 >= 1    ? x_[:,:,i-2, colons...] : zero_slice
+            xp2 = i+2 <= n[3] ? x_[:,:,i+2, colons...] : zero_slice
+
+            xm3 = i-3 >= 1    ? x_[:,:,i-3, colons...] : zero_slice
+            xp3 = i+3 <= n[3] ? x_[:,:,i+3, colons...] : zero_slice
+
+            xm4 = i-4 >= 1    ? x_[:,:,i-4, colons...] : zero_slice
+            xp4 = i+4 <= n[3] ? x_[:,:,i+4, colons...] : zero_slice
+
+            @. dz[:,:,i,colons...] = ( xm4/T(280) - T(4)*xm3/T(105) + xm2/T(5) - T(4)*xm1/T(5) +
+                                      -xp4/T(280) + T(4)*xp3/T(105) - xp2/T(5) + T(4)*xp1/T(5))
+        end
+    else
+        @fastmath @inbounds @simd for i in 1:n[3]
+            xm1 = i-1 >= 1    ? x_[:,:,i-1, colons...] : zero_slice
+            xp1 = i+1 <= n[3] ? x_[:,:,i+1, colons...] : zero_slice
+
+            xm2 = i-2 >= 1    ? x_[:,:,i-2, colons...] : zero_slice
+            xp2 = i+2 <= n[3] ? x_[:,:,i+2, colons...] : zero_slice
+
+            @. dz[:,:,i,colons...] = xm2/T(12) - T(2)*xm1/T(3) + T(2)*xp1/3 - xp2/T(12)
+        end
     end
-    return dy[:,:,2:n[3]+1, colons...]
+
+    return dz
 end
 
-gradient(x::AbstractArray) = gradient(x, size(x)...)
-function gradient(x::AbstractArray{T}, nz, nx) where T
+gradient(x::AbstractArray; order=4) = gradient(x, size(x)...; order=order)
+function gradient(x::AbstractArray{T}, nz, nx; order=4) where T
     grad = zeros(T, nz, nx, 2)
-    grad[:,:,1] = deriv_x(x, nz, nx)
-    grad[:,:,2] = deriv_z(x, nz, nx)
+    grad[:,:,1] = deriv_x(x, nz, nx; order=order)
+    grad[:,:,2] = deriv_z(x, nz, nx; order=order)
     return grad
 end
 
-function gradient(x::AbstractArray{T}, nz, nx, ny) where T
+function gradient(x::AbstractArray{T}, nz, nx, ny; order=4) where T
     grad = zeros(T, nz, nx, ny, 3)
-    grad[:,:,:,1] = deriv_x(x, nz, nx, ny)
-    grad[:,:,:,2] = deriv_y(x, nz, nx, ny)
-    grad[:,:,:,3] = deriv_z(x, nz, nx, ny)
+    grad[:,:,:,1] = deriv_x(x, nz, nx, ny; order=order)
+    grad[:,:,:,2] = deriv_y(x, nz, nx, ny; order=order)
+    grad[:,:,:,3] = deriv_z(x, nz, nx, ny; order=order)
     return grad
 end
 
-divergence(x::AbstractArray) = divergence(x, size(x)...)
-function divergence(x::AbstractArray, nz, nx)
+divergence(x::AbstractArray; order=4) = divergence(x, size(x)...; order=order)
+function divergence(x::AbstractArray, nz, nx; order=4)
     x_ = reshape(x, nz, nx, 2)
-    return deriv_x(x_[:,:,1], nz, nx) + deriv_z(x_[:,:,2], nz, nx)
+    return deriv_x(x_[:,:,1], nz, nx; order=order) + deriv_z(x_[:,:,2], nz, nx; order=order)
 end
 
-function divergence(x::AbstractArray, nz, nx, ny)
+function divergence(x::AbstractArray, nz, nx, ny; order=4)
     x_ = reshape(x, nz, nx, ny, 3)
-    return deriv_x(x_[:,:,:,1], nz, nx, ny) + deriv_y(x_[:,:,:,2], nz, nx, ny) + deriv_z(x_[:,:,:,3], nz, nx, ny)
+    return deriv_x(x_[:,:,:,1], nz, nx, ny; order=order) +
+           deriv_y(x_[:,:,:,2], nz, nx, ny; order=order) +
+           deriv_z(x_[:,:,:,3], nz, nx, ny; order=order)
 end
