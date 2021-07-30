@@ -199,64 +199,62 @@ println(@sprintf("            ⟨Δ u, v⟩ = %.5f", vtv))
 @test abs(utu - vtv)/((utu+vtv)/2) <= 100eps()
 println("")
 
-for order in [2, 4, 8]
-    println("3D DiffZ (order $order)... ")
-    δz = KirchMig.DiffZMap(nz, nx, ny; order=order)
+println("3D DiffZ... ")
+δz = KirchMig.DiffZMap(nz, nx, ny)
 
-    Random.seed!(1234)
-    u = rand(size(δz, 2))
-    v = rand(size(δz, 1))
-    v_hat = δz*u;
-    u_hat = δz'v;
-    utu =  dot(u_hat, u)
-    vtv =  dot(v_hat, v)
-    println(@sprintf("  Dot test: ⟨-δz v, u⟩ = %.5f", utu))
-    println(@sprintf("            ⟨ δz u, v⟩ = %.5f", vtv))
-    @test abs(utu - vtv)/((utu+vtv)/2) <= 100eps()
-    println("")
+Random.seed!(1234)
+u = rand(size(δz, 2))
+v = rand(size(δz, 1))
+v_hat = δz*u;
+u_hat = δz'v;
+utu =  dot(u_hat, u)
+vtv =  dot(v_hat, v)
+println(@sprintf("  Dot test: ⟨-δz v, u⟩ = %.5f", utu))
+println(@sprintf("            ⟨ δz u, v⟩ = %.5f", vtv))
+@test abs(utu - vtv)/((utu+vtv)/2) <= 100eps()
+println("")
 
-    println("2D DiffX (order $order)... ")
-    δx = KirchMig.DiffXMap(nz, nx; order=order)
+println("2D DiffX... ")
+δx = KirchMig.DiffXMap(nz, nx)
 
-    Random.seed!(1234)
-    u = rand(size(δx, 2))
-    v = rand(size(δx, 1))
-    v_hat = δx*u;
-    u_hat = δx'v;
-    utu =  dot(u_hat, u)
-    vtv =  dot(v_hat, v)
-    println(@sprintf("  Dot test: ⟨-δx v, u⟩ = %.5f", utu))
-    println(@sprintf("            ⟨ δx u, v⟩ = %.5f", vtv))
-    @test abs(utu - vtv)/((utu+vtv)/2) <= 100eps()
-    println("")
+Random.seed!(1234)
+u = rand(size(δx, 2))
+v = rand(size(δx, 1))
+v_hat = δx*u;
+u_hat = δx'v;
+utu =  dot(u_hat, u)
+vtv =  dot(v_hat, v)
+println(@sprintf("  Dot test: ⟨-δx v, u⟩ = %.5f", utu))
+println(@sprintf("            ⟨ δx u, v⟩ = %.5f", vtv))
+@test abs(utu - vtv)/((utu+vtv)/2) <= 100eps()
+println("")
 
-    println("2D GradDiv (order $order)... ")
-    GD = KirchMig.GradDivMap(nz, nx; order=order)
+println("2D GradDiv... ")
+GD = KirchMig.GradDivMap(nz, nx)
 
-    Random.seed!(1234)
-    u = rand(size(GD, 2))
-    v = rand(size(GD, 1))
-    v_hat = GD*u;
-    u_hat = GD'v;
-    utu =  dot(u_hat, u)
-    vtv =  dot(v_hat, v)
-    println(@sprintf("  Dot test: ⟨-div v, u⟩ = %.5f", utu))
-    println(@sprintf("            ⟨grad u, v⟩ = %.5f", vtv))
-    @test abs(utu - vtv)/((utu+vtv)/2) <= 100eps()
-    println("")
+Random.seed!(1234)
+u = rand(size(GD, 2))
+v = rand(size(GD, 1))
+v_hat = GD*u;
+u_hat = GD'v;
+utu =  dot(u_hat, u)
+vtv =  dot(v_hat, v)
+println(@sprintf("  Dot test: ⟨-div v, u⟩ = %.5f", utu))
+println(@sprintf("            ⟨grad u, v⟩ = %.5f", vtv))
+@test abs(utu - vtv)/((utu+vtv)/2) <= 100eps()
+println("")
 
-    println("3D GradDiv (order $order)... ")
-    GD = KirchMig.GradDivMap(nz, nx, ny; order=order)
+println("3D GradDiv... ")
+GD = KirchMig.GradDivMap(nz, nx, ny)
 
-    Random.seed!(1234)
-    u = rand(size(GD, 2))
-    v = rand(size(GD, 1))
-    v_hat = GD*u;
-    u_hat = GD'v;
-    utu =  dot(u_hat, u)
-    vtv =  dot(v_hat, v)
-    println(@sprintf("  Dot test: ⟨-div v, u⟩ = %.5f", utu))
-    println(@sprintf("            ⟨grad u, v⟩ = %.5f", vtv))
-    @test abs(utu - vtv)/((utu+vtv)/2) <= 100eps()
-    println("")
-end
+Random.seed!(1234)
+u = rand(size(GD, 2))
+v = rand(size(GD, 1))
+v_hat = GD*u;
+u_hat = GD'v;
+utu =  dot(u_hat, u)
+vtv =  dot(v_hat, v)
+println(@sprintf("  Dot test: ⟨-div v, u⟩ = %.5f", utu))
+println(@sprintf("            ⟨grad u, v⟩ = %.5f", vtv))
+@test abs(utu - vtv)/((utu+vtv)/2) <= 100eps()
+println("")
